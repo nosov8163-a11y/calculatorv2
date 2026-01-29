@@ -41,10 +41,13 @@
             width: 100%;
         }
         
-        h1 {
-            color: var(--black);
+        .logo {
+            max-width: 400px;
+            height: auto;
             margin: 20px 0;
-            font-size: 2.2em;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
         
         .calculator-buttons {
@@ -527,6 +530,10 @@
                 width: 100%;
                 max-width: 400px;
             }
+            
+            .logo {
+                max-width: 300px;
+            }
         }
         
         @media (max-width: 768px) {
@@ -542,8 +549,8 @@
                 padding: 20px;
             }
             
-            h1 {
-                font-size: 1.8em;
+            .logo {
+                max-width: 250px;
             }
             
             h2 {
@@ -560,12 +567,20 @@
                 padding: 12px 20px;
                 font-size: 16px;
             }
+            
+            .logo {
+                max-width: 200px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Набор калькуляторов</h1>
+        <!-- Логотип вместо текста -->
+        <img src="https://raw.githubusercontent.com/nosov8163-a11y/logo2/refs/heads/main/index.png" 
+             alt="ПАРИТЕТ ДЕВЕЛОПМЕНТ" 
+             class="logo">
+        
         <div class="calculator-buttons">
             <button class="calc-button active" data-calc="chpv2">Калькулятор ЧПВ 2.0</button>
             <button class="calc-button" data-calc="kv">Расчет КВ</button>
