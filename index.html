@@ -651,6 +651,18 @@
                             </div>
                         </div>
                         
+                        <!-- Скидка риелтора (только для ЧИСТЫЕ ПРУДЫ) -->
+                        <div class="option-section" id="chpv2-realtorDiscountSection" style="display: none;">
+                            <div class="option-title">Скидка риелтора</div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="chpv2-realtorDiscount">
+                                <label for="chpv2-realtorDiscount">Применить скидку риелтора</label>
+                            </div>
+                            <div class="option-description">
+                                При включенной скидке риелтора цена уменьшается на 100,000 ₽
+                            </div>
+                        </div>
+                        
                         <!-- Комиссия банка -->
                         <div class="option-section">
                             <div class="option-title">Комиссия банка</div>
@@ -838,6 +850,18 @@
                             </div>
                             <div class="option-description">
                                 При включенной скидке менеджера цена уменьшается на 100,000 ₽
+                            </div>
+                        </div>
+                        
+                        <!-- Скидка риелтора (только для ЧИСТЫЕ ПРУДЫ) -->
+                        <div class="option-section" id="kv-realtorDiscountSection" style="display: none;">
+                            <div class="option-title">Скидка риелтора</div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="kv-realtorDiscount">
+                                <label for="kv-realtorDiscount">Применить скидку риелтора</label>
+                            </div>
+                            <div class="option-description">
+                                При включенной скидке риелтора цена уменьшается на 100,000 ₽
                             </div>
                         </div>
                         
@@ -1030,6 +1054,8 @@
                 soldNotice: document.getElementById('chpv2-soldNotice'),
                 basePriceDisplay: document.getElementById('chpv2-basePriceDisplay'),
                 managerDiscountCheckbox: document.getElementById('chpv2-managerDiscount'),
+                realtorDiscountCheckbox: document.getElementById('chpv2-realtorDiscount'),
+                realtorDiscountSection: document.getElementById('chpv2-realtorDiscountSection'),
                 bankDiscountCheckbox: document.getElementById('chpv2-bankDiscount'),
                 commissionInputContainer: document.getElementById('chpv2-commissionInputContainer'),
                 bankCommissionPercentInput: document.getElementById('chpv2-bankCommissionPercent'),
@@ -1174,11 +1200,40 @@
                 });
             }
 
+            // Функция обновления видимости скидки риелтора
+            function updateRealtorDiscountVisibility() {
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+                    chpv2.realtorDiscountSection.style.display = 'block';
+                } else {
+                    chpv2.realtorDiscountSection.style.display = 'none';
+                    // Сбрасываем чекбокс при скрытии
+                    chpv2.realtorDiscountCheckbox.checked = false;
+                }
+            }
+
             // Функция получения скорректированной цены со скидкой
             function getAdjustedDiscountPrice() {
-                return chpv2.managerDiscountCheckbox.checked ? 
-                    chpv2.currentDiscountPrice : 
-                    chpv2.currentDiscountPrice + 100000;
+                let adjustedPrice = chpv2.currentDiscountPrice;
+                
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+                    // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
+                    adjustedPrice += 200000;
+                    
+                    // Вычитаем скидки в зависимости от выбранных чекбоксов
+                    if (chpv2.managerDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                    if (chpv2.realtorDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                } else {
+                    // Для других ЖК: старая логика
+                    if (!chpv2.managerDiscountCheckbox.checked) {
+                        adjustedPrice += 100000;
+                    }
+                }
+                
+                return adjustedPrice;
             }
 
             // Функция получения текущей комиссии банка
@@ -1417,6 +1472,7 @@
                 chpv2.soldNotice.style.display = 'none';
                 chpv2.apartmentFullDetails.style.display = 'none';
                 resetChpv2Calculation();
+                updateRealtorDiscountVisibility();
 
                 if (complex) {
                     // Фильтруем данные по выбранному ЖК
@@ -1446,6 +1502,7 @@
                 chpv2.soldNotice.style.display = 'none';
                 chpv2.apartmentFullDetails.style.display = 'none';
                 resetChpv2Calculation();
+                updateRealtorDiscountVisibility();
 
                 if (complex && section) {
                     // Фильтруем данные по выбранному ЖК и дому
@@ -1495,6 +1552,7 @@
                 chpv2.soldNotice.style.display = 'none';
                 chpv2.apartmentFullDetails.style.display = 'none';
                 resetChpv2Calculation();
+                updateRealtorDiscountVisibility();
 
                 if (selectedOption.value) {
                     chpv2.currentOriginalBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
@@ -1530,12 +1588,18 @@
 
                     updateChpv2ApartmentFullDetails();
                     updateChpv2PriceDisplay();
+                    updateRealtorDiscountVisibility();
                     calculateChpv2();
                 }
             });
 
             // Слушатели событий для ЧПВ 2.0
             chpv2.managerDiscountCheckbox.addEventListener('change', function() {
+                updateChpv2PriceDisplay();
+                calculateChpv2();
+            });
+            
+            chpv2.realtorDiscountCheckbox.addEventListener('change', function() {
                 updateChpv2PriceDisplay();
                 calculateChpv2();
             });
@@ -1571,6 +1635,8 @@
                 soldNotice: document.getElementById('kv-soldNotice'),
                 basePriceDisplay: document.getElementById('kv-basePriceDisplay'),
                 managerDiscountCheckbox: document.getElementById('kv-managerDiscount'),
+                realtorDiscountCheckbox: document.getElementById('kv-realtorDiscount'),
+                realtorDiscountSection: document.getElementById('kv-realtorDiscountSection'),
                 repairCostInput: document.getElementById('kv-repairCost'),
                 dduObjectsInput: document.getElementById('kv-dduObjects'),
                 kvSubsidyInput: document.getElementById('kv-kvSubsidy'),
@@ -1631,11 +1697,40 @@
                 });
             }
 
+            // Функция обновления видимости скидки риелтора
+            function updateRealtorDiscountVisibility() {
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+                    kv.realtorDiscountSection.style.display = 'block';
+                } else {
+                    kv.realtorDiscountSection.style.display = 'none';
+                    // Сбрасываем чекбокс при скрытии
+                    kv.realtorDiscountCheckbox.checked = false;
+                }
+            }
+
             // Функция получения скорректированной цены со скидкой
             function getAdjustedDiscountPrice() {
-                return kv.managerDiscountCheckbox.checked ? 
-                    kv.currentDiscountPrice : 
-                    kv.currentDiscountPrice + 100000;
+                let adjustedPrice = kv.currentDiscountPrice;
+                
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+                    // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
+                    adjustedPrice += 200000;
+                    
+                    // Вычитаем скидки в зависимости от выбранных чекбоксов
+                    if (kv.managerDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                    if (kv.realtorDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                } else {
+                    // Для других ЖК: старая логика
+                    if (!kv.managerDiscountCheckbox.checked) {
+                        adjustedPrice += 100000;
+                    }
+                }
+                
+                return adjustedPrice;
             }
 
             // Функция округления до 4 знаков (до 10000)
@@ -1830,6 +1925,7 @@
                 kv.soldNotice.style.display = 'none';
                 kv.apartmentFullDetails.style.display = 'none';
                 resetKvCalculation();
+                updateRealtorDiscountVisibility();
 
                 if (complex) {
                     // Фильтруем данные по выбранному ЖК
@@ -1859,6 +1955,7 @@
                 kv.soldNotice.style.display = 'none';
                 kv.apartmentFullDetails.style.display = 'none';
                 resetKvCalculation();
+                updateRealtorDiscountVisibility();
 
                 if (complex && section) {
                     // Фильтруем данные по выбранному ЖК и дому
@@ -1908,6 +2005,7 @@
                 kv.soldNotice.style.display = 'none';
                 kv.apartmentFullDetails.style.display = 'none';
                 resetKvCalculation();
+                updateRealtorDiscountVisibility();
 
                 if (selectedOption.value) {
                     kv.currentBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
@@ -1956,6 +2054,7 @@
 
             // Слушатели событий для КВ
             kv.managerDiscountCheckbox.addEventListener('change', calculateKv);
+            kv.realtorDiscountCheckbox.addEventListener('change', calculateKv);
             kv.repairCostInput.addEventListener('input', calculateKv);
             kv.dduObjectsInput.addEventListener('input', calculateKv);
             kv.kvSubsidyInput.addEventListener('input', calculateKv);
