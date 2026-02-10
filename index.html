@@ -1761,33 +1761,32 @@ function getAdjustedDiscountPrice() {
 
             // Функция получения скорректированной цены со скидкой
             function getAdjustedDiscountPrice() {
-                let adjustedPrice = kv.currentDiscountPrice;
-                
-if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+    let adjustedPrice = kv.currentDiscountPrice;
+    
+    if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
         // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
         adjustedPrice += 200000;
         
         // Вычитаем скидки в зависимости от выбранных чекбоксов
-        if (chpv2.managerDiscountCheckbox.checked) {
+        if (kv.managerDiscountCheckbox.checked) {
             adjustedPrice -= 100000;
         }
-        if (chpv2.realtorDiscountCheckbox.checked) {
+        if (kv.realtorDiscountCheckbox.checked) {
             adjustedPrice -= 100000;
         }
-    } else if (chpv2.currentComplex === 'Тёплые кварталы') {
-        // Для Тёплые кварталы: к цене продажи добавляем 200 000
-        adjustedPrice += 200000;
-        
+    } else if (kv.currentComplex === 'Тёплые кварталы') {
+        // Для Тёплых кварталов:  добавляем 200 000
+         adjustedPrice += 200000;
         // Вычитаем скидки в зависимости от выбранных чекбоксов
-        if (chpv2.managerDiscountCheckbox.checked) {
+        if (kv.managerDiscountCheckbox.checked) {
             adjustedPrice -= 100000;
         }
-        if (chpv2.realtorDiscountCheckbox.checked) {
+        if (kv.realtorDiscountCheckbox.checked) {
             adjustedPrice -= 100000;
         }
     } else {
         // Для других ЖК: старая логика
-        if (!chpv2.managerDiscountCheckbox.checked) {
+        if (!kv.managerDiscountCheckbox.checked) {
             adjustedPrice += 100000;
         }
     }
@@ -2196,4 +2195,5 @@ if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
     </script>
 </body>
 </html>
+
 
