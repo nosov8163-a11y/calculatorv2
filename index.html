@@ -1195,39 +1195,50 @@
 
             // Функция обновления видимости скидки риелтора
             function updateRealtorDiscountVisibility() {
-                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
-                    chpv2.realtorDiscountSection.style.display = 'block';
-                } else {
-                    chpv2.realtorDiscountSection.style.display = 'none';
-                    // Сбрасываем чекбокс при скрытии
-                    chpv2.realtorDiscountCheckbox.checked = false;
-                }
-            }
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы') {
+        chpv2.realtorDiscountSection.style.display = 'block';
+    } else {
+        chpv2.realtorDiscountSection.style.display = 'none';
+        // Сбрасываем чекбокс при скрытии
+        chpv2.realtorDiscountCheckbox.checked = false;
+    }
+}
 
             // Функция получения скорректированной цены со скидкой
-            function getAdjustedDiscountPrice() {
-                let adjustedPrice = chpv2.currentDiscountPrice;
-                
-                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
-                    // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
-                    adjustedPrice += 200000;
-                    
-                    // Вычитаем скидки в зависимости от выбранных чекбоксов
-                    if (chpv2.managerDiscountCheckbox.checked) {
-                        adjustedPrice -= 100000;
-                    }
-                    if (chpv2.realtorDiscountCheckbox.checked) {
-                        adjustedPrice -= 100000;
-                    }
-                } else {
-                    // Для других ЖК: старая логика
-                    if (!chpv2.managerDiscountCheckbox.checked) {
-                        adjustedPrice += 100000;
-                    }
-                }
-                
-                return adjustedPrice;
-            }
+function getAdjustedDiscountPrice() {
+    let adjustedPrice = chpv2.currentDiscountPrice;
+    
+    if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+        // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
+        adjustedPrice += 200000;
+        
+        // Вычитаем скидки в зависимости от выбранных чекбоксов
+        if (chpv2.managerDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+        if (chpv2.realtorDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+    } else if (chpv2.currentComplex === 'Тёплые кварталы') {
+        // Для Тёплые кварталы: к цене продажи добавляем 200 000
+        adjustedPrice += 200000;
+        
+        // Вычитаем скидки в зависимости от выбранных чекбоксов
+        if (chpv2.managerDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+        if (chpv2.realtorDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+    } else {
+        // Для других ЖК: старая логика
+        if (!chpv2.managerDiscountCheckbox.checked) {
+            adjustedPrice += 100000;
+        }
+    }
+    
+    return adjustedPrice;
+}
 
             // Функция получения текущей комиссии банка
             function getBankCommissionRate() {
@@ -1739,39 +1750,51 @@
 
             // Функция обновления видимости скидки риелтора
             function updateRealtorDiscountVisibility() {
-                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
-                    kv.realtorDiscountSection.style.display = 'block';
-                } else {
-                    kv.realtorDiscountSection.style.display = 'none';
-                    // Сбрасываем чекбокс при скрытии
-                    kv.realtorDiscountCheckbox.checked = false;
-                }
-            }
+                    if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы') {
+        kv.realtorDiscountSection.style.display = 'block';
+    } else {
+        kv.realtorDiscountSection.style.display = 'none';
+        // Сбрасываем чекбокс при скрытии
+        kv.realtorDiscountCheckbox.checked = false;
+    }
+}
 
             // Функция получения скорректированной цены со скидкой
             function getAdjustedDiscountPrice() {
                 let adjustedPrice = kv.currentDiscountPrice;
                 
-                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
-                    // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
-                    adjustedPrice += 200000;
-                    
-                    // Вычитаем скидки в зависимости от выбранных чекбоксов
-                    if (kv.managerDiscountCheckbox.checked) {
-                        adjustedPrice -= 100000;
-                    }
-                    if (kv.realtorDiscountCheckbox.checked) {
-                        adjustedPrice -= 100000;
-                    }
-                } else {
-                    // Для других ЖК: старая логика
-                    if (!kv.managerDiscountCheckbox.checked) {
-                        adjustedPrice += 100000;
-                    }
-                }
-                
-                return adjustedPrice;
-            }
+if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
+        // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
+        adjustedPrice += 200000;
+        
+        // Вычитаем скидки в зависимости от выбранных чекбоксов
+        if (chpv2.managerDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+        if (chpv2.realtorDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+    } else if (chpv2.currentComplex === 'Тёплые кварталы') {
+        // Для Тёплые кварталы: к цене продажи добавляем 200 000
+        adjustedPrice += 200000;
+        
+        // Вычитаем скидки в зависимости от выбранных чекбоксов
+        if (chpv2.managerDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+        if (chpv2.realtorDiscountCheckbox.checked) {
+            adjustedPrice -= 100000;
+        }
+    } else {
+        // Для других ЖК: старая логика
+        if (!chpv2.managerDiscountCheckbox.checked) {
+            adjustedPrice += 100000;
+        }
+    }
+    
+    return adjustedPrice;
+}
+
 
             // Функция округления до 4 знаков (до 10000)
             function roundUpTo4Digits(amount) {
@@ -2173,3 +2196,4 @@
     </script>
 </body>
 </html>
+
