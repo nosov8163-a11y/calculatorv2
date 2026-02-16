@@ -651,7 +651,7 @@
                             </div>
                         </div>
                         
-                        <!-- Скидка риелтора (только для ЧИСТЫЕ ПРУДЫ) -->
+                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский) -->
                         <div class="option-section" id="chpv2-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -859,7 +859,7 @@
                             </div>
                         </div>
                         
-                        <!-- Скидка риелтора (только для ЧИСТЫЕ ПРУДЫ) -->
+                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский) -->
                         <div class="option-section" id="kv-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -1195,50 +1195,39 @@
 
             // Функция обновления видимости скидки риелтора
             function updateRealtorDiscountVisibility() {
-                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы') {
-        chpv2.realtorDiscountSection.style.display = 'block';
-    } else {
-        chpv2.realtorDiscountSection.style.display = 'none';
-        // Сбрасываем чекбокс при скрытии
-        chpv2.realtorDiscountCheckbox.checked = false;
-    }
-}
+                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы и Бодровский
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский') {
+                    chpv2.realtorDiscountSection.style.display = 'block';
+                } else {
+                    chpv2.realtorDiscountSection.style.display = 'none';
+                    // Сбрасываем чекбокс при скрытии
+                    chpv2.realtorDiscountCheckbox.checked = false;
+                }
+            }
 
             // Функция получения скорректированной цены со скидкой
-function getAdjustedDiscountPrice() {
-    let adjustedPrice = chpv2.currentDiscountPrice;
-    
-    if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
-        // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
-        adjustedPrice += 200000;
-        
-        // Вычитаем скидки в зависимости от выбранных чекбоксов
-        if (chpv2.managerDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-        if (chpv2.realtorDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-    } else if (chpv2.currentComplex === 'Тёплые кварталы') {
-        // Для Тёплые кварталы: к цене продажи добавляем 200 000
-        adjustedPrice += 200000;
-        
-        // Вычитаем скидки в зависимости от выбранных чекбоксов
-        if (chpv2.managerDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-        if (chpv2.realtorDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-    } else {
-        // Для других ЖК: старая логика
-        if (!chpv2.managerDiscountCheckbox.checked) {
-            adjustedPrice += 100000;
-        }
-    }
-    
-    return adjustedPrice;
-}
+            function getAdjustedDiscountPrice() {
+                let adjustedPrice = chpv2.currentDiscountPrice;
+                
+                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский: добавляем 200 000 и вычитаем скидки
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский') {
+                    adjustedPrice += 200000;
+                    
+                    if (chpv2.managerDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                    if (chpv2.realtorDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                } else {
+                    // Для других ЖК: старая логика
+                    if (!chpv2.managerDiscountCheckbox.checked) {
+                        adjustedPrice += 100000;
+                    }
+                }
+                
+                return adjustedPrice;
+            }
 
             // Функция получения текущей комиссии банка
             function getBankCommissionRate() {
@@ -1750,50 +1739,39 @@ function getAdjustedDiscountPrice() {
 
             // Функция обновления видимости скидки риелтора
             function updateRealtorDiscountVisibility() {
-                    if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы') {
-        kv.realtorDiscountSection.style.display = 'block';
-    } else {
-        kv.realtorDiscountSection.style.display = 'none';
-        // Сбрасываем чекбокс при скрытии
-        kv.realtorDiscountCheckbox.checked = false;
-    }
-}
+                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы и Бодровский
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский') {
+                    kv.realtorDiscountSection.style.display = 'block';
+                } else {
+                    kv.realtorDiscountSection.style.display = 'none';
+                    // Сбрасываем чекбокс при скрытии
+                    kv.realtorDiscountCheckbox.checked = false;
+                }
+            }
 
             // Функция получения скорректированной цены со скидкой
             function getAdjustedDiscountPrice() {
-    let adjustedPrice = kv.currentDiscountPrice;
-    
-    if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ') {
-        // Для ЧИСТЫХ ПРУДОВ: к цене продажи добавляем 200 000
-        adjustedPrice += 200000;
-        
-        // Вычитаем скидки в зависимости от выбранных чекбоксов
-        if (kv.managerDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-        if (kv.realtorDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-    } else if (kv.currentComplex === 'Тёплые кварталы') {
-        // Для Тёплых кварталов:  добавляем 200 000
-         adjustedPrice += 200000;
-        // Вычитаем скидки в зависимости от выбранных чекбоксов
-        if (kv.managerDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-        if (kv.realtorDiscountCheckbox.checked) {
-            adjustedPrice -= 100000;
-        }
-    } else {
-        // Для других ЖК: старая логика
-        if (!kv.managerDiscountCheckbox.checked) {
-            adjustedPrice += 100000;
-        }
-    }
-    
-    return adjustedPrice;
-}
-
+                let adjustedPrice = kv.currentDiscountPrice;
+                
+                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский: добавляем 200 000 и вычитаем скидки
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский') {
+                    adjustedPrice += 200000;
+                    
+                    if (kv.managerDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                    if (kv.realtorDiscountCheckbox.checked) {
+                        adjustedPrice -= 100000;
+                    }
+                } else {
+                    // Для других ЖК: старая логика
+                    if (!kv.managerDiscountCheckbox.checked) {
+                        adjustedPrice += 100000;
+                    }
+                }
+                
+                return adjustedPrice;
+            }
 
             // Функция округления до 4 знаков (до 10000)
             function roundUpTo4Digits(amount) {
@@ -2195,5 +2173,3 @@ function getAdjustedDiscountPrice() {
     </script>
 </body>
 </html>
-
-
