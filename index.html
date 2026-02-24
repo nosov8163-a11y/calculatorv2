@@ -651,7 +651,7 @@
                             </div>
                         </div>
                         
-                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский) -->
+                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, Астро) -->
                         <div class="option-section" id="chpv2-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -680,6 +680,22 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Программа Winwin Bonus -->
+                        <div class="option-section">
+                            <div class="option-title">Программа Winwin Bonus</div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="chpv2-winwinBonus">
+                                <label for="chpv2-winwinBonus">Применить Winwin Bonus</label>
+                            </div>
+                            <div class="option-description">
+                                При включении добавляется комиссия 5% от Паритет ПВ
+                            </div>
+                            <!-- Блок для отображения суммы комиссии (5% от Паритет ПВ) -->
+                            <div id="chpv2-winwinCommissionDisplay" style="margin-top: 10px; padding: 8px; background: #e9ecef; border-radius: 4px; font-weight: bold; color: #17a2b8; display: none;">
+                                Сумма комиссии: <span id="chpv2-winwinCommissionValue">0 ₽</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -696,10 +712,10 @@
                     </div>
                 </div>
                 
-                <!-- Первоначальный взнос клиента -->
+                <!-- Первоначальный взнос клиента (минимум 300 000) -->
                 <div class="form-group">
                     <label for="chpv2-clientDownPayment">Первоначальный взнос клиента (₽):</label>
-                    <input type="number" id="chpv2-clientDownPayment" value="0" min="0" step="10000">
+                    <input type="number" id="chpv2-clientDownPayment" value="300000" min="300000" step="10000">
                     <div id="chpv2-minPaymentInfo" class="min-payment-info"></div>
                 </div>
                 
@@ -742,6 +758,13 @@
                     <span>Процент комиссии:</span>
                     <span id="chpv2-resultBankCommissionPercent" class="info">0%</span>
                 </div>
+                <!-- Строка для отображения бонуса Winwin (информационно, с ограничениями) -->
+                <div id="chpv2-winwinTotalItem" class="result-item" style="display: none;">
+                    <span>Кэшбек (Winwin Bonus):</span>
+                    <span id="chpv2-resultWinwinTotal" class="info">0 ₽</span>
+                </div>
+                <!-- Отдельное предупреждение для превышения лимита Winwin -->
+                <div id="chpv2-winwinWarning" class="payment-warning" style="display: none;"></div>
                 <div class="result-item">
                     <span>Скидка на квартиру без учета ремонта:</span>
                     <span id="chpv2-resultDiscountWithoutRepair" class="no-discount">Нет скидки</span>
@@ -833,10 +856,10 @@
                         <input type="number" id="kv-clientPVPercent" value="20.1" min="0" step="0.1">
                     </div>
                     
-                    <!-- ВОССТАНОВЛЕНО: Поле ПВ клиента в рублях -->
+                    <!-- Поле ПВ клиента в рублях с минимумом 300 000 -->
                     <div class="form-group">
                         <label for="kv-clientPVRub">ПВ клиента (руб):</label>
-                        <input type="number" id="kv-clientPVRub" value="0" min="0" step="10000">
+                        <input type="number" id="kv-clientPVRub" value="300000" min="300000" step="10000">
                     </div>
                 </div>
                 
@@ -859,7 +882,7 @@
                             </div>
                         </div>
                         
-                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский) -->
+                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, Астро) -->
                         <div class="option-section" id="kv-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -910,7 +933,7 @@
                         <span id="kv-familyDiscount" class="no-discount">Нет скидки</span>
                     </div>
                     <div id="kv-familyWarning" class="payment-warning" style="display: none;">
-                        Увеличить ПВ клиента
+                        <!-- Предупреждение будет заполняться динамически -->
                     </div>
                 </div>
                 
@@ -1076,6 +1099,14 @@
                 calculationTime: document.getElementById('chpv2-calculationTime'),
                 timeValue: document.getElementById('chpv2-timeValue'),
                 
+                // Новые элементы для Winwin Bonus
+                winwinBonusCheckbox: document.getElementById('chpv2-winwinBonus'),
+                winwinCommissionDisplay: document.getElementById('chpv2-winwinCommissionDisplay'),
+                winwinCommissionValue: document.getElementById('chpv2-winwinCommissionValue'),
+                winwinTotalItem: document.getElementById('chpv2-winwinTotalItem'),
+                resultWinwinTotal: document.getElementById('chpv2-resultWinwinTotal'),
+                winwinWarning: document.getElementById('chpv2-winwinWarning'), // новый элемент предупреждения
+                
                 // Результаты
                 resultContractPrice: document.getElementById('chpv2-resultContractPrice'),
                 resultTotalPV: document.getElementById('chpv2-resultTotalPV'),
@@ -1116,68 +1147,16 @@
             // ЖК с увеличенной ценой на 3% (только для цены со скидкой)
             const increasedPriceComplexes = ['Бодровский', 'Комсомольский', 'ЧИСТЫЕ ПРУДЫ'];
             const PRICE_INCREASE_RATE = 0.03; // 3%
-
-            // Коэффициенты для расчета минимального ПВ (только для Тёплые кварталы, АСТРО, Счастье)
-            const coefficients = {
-                'АСТРО': [
-                    { max: 5000000, value: 0.10 },
-                    { max: 8000000, value: 0.12 },
-                    { max: 12000000, value: 0.15 }
-                ],
-                'Счастье': [
-                    { max: 2000000, value: 0.065 },
-                    { max: 3500000, value: 0.09 },
-                    { max: 6500000, value: 0.11 }
-                ],
-                'Тёплые кварталы': [
-                    { max: 5000000, value: 0.105 },
-                    { max: 8000000, value: 0.125 },
-                    { max: 14000000, value: 0.145 }
-                ]
-            };
-
-            // ЖК с фиксированным минимальным ПВ 300 000 ₽ (Бодровский, Комсомольский, ЧИСТЫЕ ПРУДЫ)
-            const fixedMinPaymentComplexes = ['Бодровский', 'Комсомольский', 'ЧИСТЫЕ ПРУДЫ'];
-            const FIXED_MIN_PAYMENT = 300000;
-
-            // Функция для получения коэффициента для ЖК (только для Тёплые кварталы, АСТРО, Счастье)
-            function getCoefficient(complex, basePrice) {
-                const complexCoeffs = coefficients[complex];
-                if (!complexCoeffs) return 0.10;
-                
-                for (let i = 0; i < complexCoeffs.length; i++) {
-                    if (basePrice <= complexCoeffs[i].max) {
-                        return complexCoeffs[i].value;
-                    }
-                }
-                
-                return complexCoeffs[complexCoeffs.length - 1].value;
-            }
-
-            // Функция проверки, является ли ЖК с фиксированным минимальным ПВ
-            function isFixedMinPaymentComplex(complex) {
-                return fixedMinPaymentComplexes.includes(complex);
-            }
+            const FIXED_MIN_PAYMENT = 300000; // Минимальный взнос для всех проектов
 
             // Функция проверки, нужно ли увеличивать цену со скидкой для ЖК
             function isPriceIncreasedComplex(complex) {
                 return increasedPriceComplexes.includes(complex);
             }
 
-            // Функция расчета минимального ПВ клиента
+            // Функция расчета минимального ПВ клиента (всегда 300 000)
             function calculateMinClientPayment() {
-                if (isFixedMinPaymentComplex(chpv2.currentComplex)) {
-                    // Для Бодровский, Комсомольский, ЧИСТЫЕ ПРУДЫ - фиксированный минимум 300 000
-                    return FIXED_MIN_PAYMENT;
-                }
-                
-                // Для Тёплые кварталы, АСТРО, Счастье - старая логика с коэффициентами
-                const repairCost = parseInt(chpv2.repairCostInput.value) || 0;
-                const dduObjects = parseInt(chpv2.dduObjectsInput.value) || 0;
-                const totalBase = chpv2.currentBasePrice + repairCost + dduObjects;
-                const coefficient = getCoefficient(chpv2.currentComplex, chpv2.currentBasePrice);
-                
-                return Math.round(totalBase * coefficient);
+                return FIXED_MIN_PAYMENT;
             }
 
             // Функция сворачивания/разворачивания блока Опции
@@ -1195,8 +1174,8 @@
 
             // Функция обновления видимости скидки риелтора
             function updateRealtorDiscountVisibility() {
-                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы и Бодровский
-                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский') {
+                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский' || chpv2.currentComplex === 'АСТРО') {
                     chpv2.realtorDiscountSection.style.display = 'block';
                 } else {
                     chpv2.realtorDiscountSection.style.display = 'none';
@@ -1209,8 +1188,8 @@
             function getAdjustedDiscountPrice() {
                 let adjustedPrice = chpv2.currentDiscountPrice;
                 
-                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский: добавляем 200 000 и вычитаем скидки
-                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский') {
+                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро: добавляем 200 000 и вычитаем скидки
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский' || chpv2.currentComplex === 'АСТРО') {
                     adjustedPrice += 200000;
                     
                     if (chpv2.managerDiscountCheckbox.checked) {
@@ -1236,50 +1215,67 @@
                 return commissionPercent / 100;
             }
             
-            // Функция расчета стоимости договора для ДДУ БЕЗ комиссии банка
-            function calculateContractPriceWithoutBankCommission() {
+            // Функция расчета стоимости договора для ДДУ БЕЗ комиссии банка (с поддержкой Winwin)
+            function calculateContractPriceWithoutBankCommission(winwinEnabled) {
                 const adjustedDiscountPrice = getAdjustedDiscountPrice();
                 const repairCost = parseInt(chpv2.repairCostInput.value) || 0;
                 const dduObjects = parseInt(chpv2.dduObjectsInput.value) || 0;
                 const clientPV = parseInt(chpv2.clientDownPaymentInput.value) || 0;
                 
                 let contractPrice = adjustedDiscountPrice + repairCost + dduObjects;
+                let winwinBonus = 0;
                 
                 for (let i = 0; i < 20; i++) {
                     let totalPV = Math.ceil(contractPrice * 0.201);
                     let companyPV = totalPV - clientPV;
-                    let newContractPrice = adjustedDiscountPrice + repairCost + dduObjects + companyPV + companyPV * 0.05;
+                    
+                    winwinBonus = winwinEnabled ? Math.round(companyPV * 0.05) : 0;
+                    
+                    // Техническая надбавка добавляется только если Winwin Bonus выключен
+                    let technicalMarkup = winwinEnabled ? 0 : companyPV * 0.05;
+                    let newContractPrice = adjustedDiscountPrice + repairCost + dduObjects + companyPV + technicalMarkup + winwinBonus;
                     
                     if (Math.abs(newContractPrice - contractPrice) < 1) {
+                        contractPrice = newContractPrice;
                         break;
                     }
                     contractPrice = newContractPrice;
                 }
                 
-                return Math.round(contractPrice);
+                return {
+                    contractPrice: Math.round(contractPrice),
+                    bankCommission: 0,
+                    bankCommissionRate: 0,
+                    winwinBonus: winwinBonus
+                };
             }
             
-            // Функция расчета стоимости договора для ДДУ С комиссией банка
-            function calculateContractPriceWithBankCommission() {
+            // Функция расчета стоимости договора для ДДУ С комиссией банка (с поддержкой Winwin)
+            function calculateContractPriceWithBankCommission(winwinEnabled) {
                 const adjustedDiscountPrice = getAdjustedDiscountPrice();
                 const repairCost = parseInt(chpv2.repairCostInput.value) || 0;
                 const dduObjects = parseInt(chpv2.dduObjectsInput.value) || 0;
                 const clientPV = parseInt(chpv2.clientDownPaymentInput.value) || 0;
                 const bankCommissionRate = getBankCommissionRate();
                 
-                let contractPrice = calculateContractPriceWithoutBankCommission();
+                let contractPrice = adjustedDiscountPrice + repairCost + dduObjects;
                 let bankCommission = 0;
+                let winwinBonus = 0;
                 
                 for (let i = 0; i < 20; i++) {
                     let totalPV = Math.ceil(contractPrice * 0.201);
                     let companyPV = totalPV - clientPV;
+                    
                     let loanBody = contractPrice - totalPV;
-                    
                     bankCommission = Math.round(loanBody * bankCommissionRate);
+                    winwinBonus = winwinEnabled ? Math.round(companyPV * 0.05) : 0;
                     
-                    let newContractPrice = adjustedDiscountPrice + repairCost + dduObjects + companyPV + companyPV * 0.05 + bankCommission;
+                    // Техническая надбавка добавляется только если Winwin Bonus выключен
+                    let technicalMarkup = winwinEnabled ? 0 : companyPV * 0.05;
+                    let newContractPrice = adjustedDiscountPrice + repairCost + dduObjects + companyPV + technicalMarkup + bankCommission + winwinBonus;
                     
                     if (Math.abs(newContractPrice - contractPrice) < 1) {
+                        contractPrice = newContractPrice;
                         break;
                     }
                     contractPrice = newContractPrice;
@@ -1288,7 +1284,8 @@
                 return {
                     contractPrice: Math.round(contractPrice),
                     bankCommission: bankCommission,
-                    bankCommissionRate: bankCommissionRate
+                    bankCommissionRate: bankCommissionRate,
+                    winwinBonus: winwinBonus
                 };
             }
             
@@ -1326,6 +1323,12 @@
                 chpv2.resultDiscountWithoutRepair.textContent = "Нет скидки";
                 chpv2.resultDiscountWithoutRepair.className = "no-discount";
                 
+                // Сброс Winwin
+                chpv2.winwinCommissionDisplay.style.display = 'none';
+                chpv2.winwinTotalItem.style.display = 'none';
+                chpv2.resultWinwinTotal.textContent = formatMoney(0);
+                chpv2.winwinWarning.style.display = 'none'; // скрываем предупреждение
+                
                 chpv2.minPaymentInfo.textContent = '';
                 chpv2.paymentWarning.style.display = 'none';
                 chpv2.calculationTime.style.display = 'none';
@@ -1362,31 +1365,18 @@
                 
                 const clientPV = parseInt(chpv2.clientDownPaymentInput.value) || 0;
                 const forBank = chpv2.bankDiscountCheckbox.checked;
+                const winwinEnabled = chpv2.winwinBonusCheckbox.checked;
                 
                 const minClientPayment = calculateMinClientPayment();
                 
-                // Обновляем информацию о минимальном платеже
-                if (isFixedMinPaymentComplex(chpv2.currentComplex)) {
-                    // Для Бодровский, Комсомольский, ЧИСТЫЕ ПРУДЫ - фиксированный минимум 300 000
-                    chpv2.minPaymentInfo.textContent = `Минимальный первоначальный взнос: ${formatMoney(FIXED_MIN_PAYMENT)}`;
-                } else {
-                    // Для Тёплые кварталы, АСТРО, Счастье - старая логика
-                    const coefficient = getCoefficient(chpv2.currentComplex, chpv2.currentBasePrice);
-                    chpv2.minPaymentInfo.textContent = `Минимальный первоначальный взнос: ${formatMoney(minClientPayment)}`;
-                }
+                // Обновляем информацию о минимальном платеже (единая для всех)
+                chpv2.minPaymentInfo.textContent = `Минимальный первоначальный взнос: ${formatMoney(FIXED_MIN_PAYMENT)}`;
                 
                 // Проверка минимального платежа
                 if (clientPV < minClientPayment) {
                     chpv2.paymentWarning.style.display = 'block';
                     const amountToAdd = minClientPayment - clientPV;
-                    
-                    if (isFixedMinPaymentComplex(chpv2.currentComplex)) {
-                        // Для Бодровский, Комсомольский, ЧИСТЫЕ ПРУДЫ - специальное сообщение
-                        chpv2.paymentWarning.textContent = `Первоначальный взнос клиента меньше минимального требуемого! Необходимо добавить еще ${formatMoney(amountToAdd)}`;
-                    } else {
-                        // Для остальных - общее сообщение
-                        chpv2.paymentWarning.textContent = `Первоначальный взнос клиента меньше минимального требуемого! Необходимо добавить еще ${formatMoney(amountToAdd)}`;
-                    }
+                    chpv2.paymentWarning.textContent = `Первоначальный взнос клиента меньше минимального требуемого! Необходимо добавить еще ${formatMoney(amountToAdd)}`;
                     
                     // Сбрасываем результаты
                     chpv2.resultContractPrice.textContent = formatMoney(0);
@@ -1401,25 +1391,28 @@
                     chpv2.bankCommissionPercentItem.style.display = 'none';
                     chpv2.resultDiscountWithoutRepair.textContent = "Нет скидки";
                     chpv2.resultDiscountWithoutRepair.className = "no-discount";
+                    chpv2.winwinCommissionDisplay.style.display = 'none';
+                    chpv2.winwinTotalItem.style.display = 'none';
                     chpv2.calculationTime.style.display = 'none';
+                    chpv2.winwinWarning.style.display = 'none';
                     return;
                 } else {
                     chpv2.paymentWarning.style.display = 'none';
                 }
                 
                 // Если ПВ клиента >= минимальному, производим расчет
-                let contractPrice, bankCommission, bankCommissionRate;
+                let result;
                 
                 if (forBank) {
-                    const calculationResult = calculateContractPriceWithBankCommission();
-                    contractPrice = calculationResult.contractPrice;
-                    bankCommission = calculationResult.bankCommission;
-                    bankCommissionRate = calculationResult.bankCommissionRate;
+                    result = calculateContractPriceWithBankCommission(winwinEnabled);
                 } else {
-                    contractPrice = calculateContractPriceWithoutBankCommission();
-                    bankCommission = 0;
-                    bankCommissionRate = 0;
+                    result = calculateContractPriceWithoutBankCommission(winwinEnabled);
                 }
+                
+                const contractPrice = result.contractPrice;
+                const bankCommission = result.bankCommission;
+                const bankCommissionRate = result.bankCommissionRate;
+                const winwinBonus = result.winwinBonus; // фактическая комиссия 5% от Паритет ПВ
                 
                 const totalPV = Math.ceil(contractPrice * 0.201);
                 const companyPV = totalPV - clientPV;
@@ -1442,6 +1435,41 @@
                 } else {
                     chpv2.bankCommissionItem.style.display = 'none';
                     chpv2.bankCommissionPercentItem.style.display = 'none';
+                }
+                
+                // --- Обработка Winwin Bonus ---
+                if (winwinEnabled) {
+                    // Отображаем фактическую комиссию (5% от Паритет ПВ) внутри опций
+                    chpv2.winwinCommissionValue.textContent = formatMoney(winwinBonus);
+                    chpv2.winwinCommissionDisplay.style.display = 'block';
+                    
+                    // Исходный кэшбек (без ограничений)
+                    const rawCashback = companyPV * 1.05;
+                    const minLimit = 0.0526 * contractPrice;
+                    const maxLimit = Math.min(1200000, 0.2116 * contractPrice);
+                    
+                    let finalCashback = rawCashback;
+                    
+                    // Проверка на превышение лимита 1,2 млн
+                    if (rawCashback > 1200000) {
+                        chpv2.winwinWarning.style.display = 'block';
+                        chpv2.winwinWarning.textContent = 'Превышен установленный лимит кэшбека (1 200 000 ₽). Необходимо увеличить первоначальный взнос клиента.';
+                        // Применяем ограничение (maxLimit уже ≤ 1,2 млн)
+                        finalCashback = Math.min(rawCashback, maxLimit);
+                    } else {
+                        chpv2.winwinWarning.style.display = 'none';
+                    }
+                    
+                    // Применяем остальные ограничения (минимум и максимум)
+                    if (finalCashback < minLimit) finalCashback = minLimit;
+                    if (finalCashback > maxLimit) finalCashback = maxLimit;
+                    
+                    chpv2.resultWinwinTotal.textContent = formatMoney(finalCashback);
+                    chpv2.winwinTotalItem.style.display = 'flex';
+                } else {
+                    chpv2.winwinCommissionDisplay.style.display = 'none';
+                    chpv2.winwinTotalItem.style.display = 'none';
+                    chpv2.winwinWarning.style.display = 'none';
                 }
                 
                 if (discountWithoutRepair > 0) {
@@ -1623,6 +1651,9 @@
             chpv2.repairCostInput.addEventListener('input', calculateChpv2);
             chpv2.dduObjectsInput.addEventListener('input', calculateChpv2);
             chpv2.clientDownPaymentInput.addEventListener('input', calculateChpv2);
+            
+            // Слушатель для Winwin Bonus
+            chpv2.winwinBonusCheckbox.addEventListener('change', calculateChpv2);
 
             // Инициализация ЧПВ 2.0
             populateChpv2Complexes();
@@ -1647,14 +1678,13 @@
                 dduObjectsInput: document.getElementById('kv-dduObjects'),
                 kvSubsidyInput: document.getElementById('kv-kvSubsidy'),
                 clientPVPercentInput: document.getElementById('kv-clientPVPercent'),
-                clientPVRubInput: document.getElementById('kv-clientPVRub'), // ВОССТАНОВЛЕНО
+                clientPVRubInput: document.getElementById('kv-clientPVRub'),
                 apartmentFullDetails: document.getElementById('kv-apartmentFullDetails'),
                 optionsHeader: document.getElementById('kv-optionsHeader'),
                 optionsContent: document.getElementById('kv-optionsContent'),
                 calculationTime: document.getElementById('kv-calculationTime'),
                 timeValue: document.getElementById('kv-timeValue'),
                 
-                // Результаты для семейной ипотеки
                 familyClientPV: document.getElementById('kv-familyClientPV'),
                 familyKV: document.getElementById('kv-familyKV'),
                 familyContractPrice: document.getElementById('kv-familyContractPrice'),
@@ -1662,14 +1692,12 @@
                 familyDiscount: document.getElementById('kv-familyDiscount'),
                 familyWarning: document.getElementById('kv-familyWarning'),
                 
-                // Результаты для стандартной ипотеки
                 standardClientPV: document.getElementById('kv-standardClientPV'),
                 standardKV: document.getElementById('kv-standardKV'),
                 standardContractPrice: document.getElementById('kv-standardContractPrice'),
                 standardLoanBody: document.getElementById('kv-standardLoanBody'),
                 standardDiscount: document.getElementById('kv-standardDiscount'),
                 
-                // Информация о квартире
                 apartmentComplex: document.getElementById('kv-apartmentComplex'),
                 apartmentSection: document.getElementById('kv-apartmentSection'),
                 apartmentNumber: document.getElementById('kv-apartmentNumber'),
@@ -1678,7 +1706,6 @@
                 apartmentFloor: document.getElementById('kv-apartmentFloor'),
                 apartmentPlan: document.getElementById('kv-apartmentPlan'),
 
-                // Текущие данные
                 currentBasePrice: 0,
                 currentDiscountPrice: 0,
                 currentStatus: '',
@@ -1691,40 +1718,31 @@
                 currentPlanUrl: ''
             };
 
-            // Флаг для отслеживания источника изменения
-            let clientPVSource = 'percent'; // 'percent' или 'rub'
+            const FIXED_MIN_PAYMENT = 300000; // минимальный взнос для всех проектов
+            let clientPVSource = 'percent';
 
-            // Функция обновления поля ПВ в рублях на основе процента
             function updateClientPVRubFromPercent() {
                 if (clientPVSource !== 'percent') return;
-                
                 const familyContractPriceText = kv.familyContractPrice.textContent;
                 if (!familyContractPriceText || familyContractPriceText === '0 ₽') return;
-                
                 const familyContractPrice = parseFloat(familyContractPriceText.replace(/[^\d]/g, ''));
                 const clientPVPercent = parseFloat(kv.clientPVPercentInput.value) || 0;
-                
                 const clientPVRub = Math.round(familyContractPrice * clientPVPercent / 100);
                 kv.clientPVRubInput.value = clientPVRub;
             }
 
-            // Функция обновления поля ПВ в процентах на основе рублей
             function updateClientPVPercentFromRub() {
                 if (clientPVSource !== 'rub') return;
-                
                 const familyContractPriceText = kv.familyContractPrice.textContent;
                 if (!familyContractPriceText || familyContractPriceText === '0 ₽') return;
-                
                 const familyContractPrice = parseFloat(familyContractPriceText.replace(/[^\d]/g, ''));
                 const clientPVRub = parseFloat(kv.clientPVRubInput.value) || 0;
-                
                 if (familyContractPrice > 0) {
                     const clientPVPercent = (clientPVRub / familyContractPrice) * 100;
                     kv.clientPVPercentInput.value = clientPVPercent.toFixed(1);
                 }
             }
 
-            // Функция сворачивания/разворачивания блока Опции
             function setupKvOptionsCollapsible() {
                 kv.optionsHeader.addEventListener('click', function() {
                     const isCollapsed = kv.optionsContent.classList.toggle('collapsed');
@@ -1737,26 +1755,21 @@
                 });
             }
 
-            // Функция обновления видимости скидки риелтора
             function updateRealtorDiscountVisibility() {
-                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы и Бодровский
-                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский') {
+                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский' || kv.currentComplex === 'АСТРО') {
                     kv.realtorDiscountSection.style.display = 'block';
                 } else {
                     kv.realtorDiscountSection.style.display = 'none';
-                    // Сбрасываем чекбокс при скрытии
                     kv.realtorDiscountCheckbox.checked = false;
                 }
             }
 
-            // Функция получения скорректированной цены со скидкой
             function getAdjustedDiscountPrice() {
                 let adjustedPrice = kv.currentDiscountPrice;
-                
-                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский: добавляем 200 000 и вычитаем скидки
-                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский') {
+                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро: добавляем 200 000 и вычитаем скидки
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский' || kv.currentComplex === 'АСТРО') {
                     adjustedPrice += 200000;
-                    
                     if (kv.managerDiscountCheckbox.checked) {
                         adjustedPrice -= 100000;
                     }
@@ -1764,31 +1777,25 @@
                         adjustedPrice -= 100000;
                     }
                 } else {
-                    // Для других ЖК: старая логика
                     if (!kv.managerDiscountCheckbox.checked) {
                         adjustedPrice += 100000;
                     }
                 }
-                
                 return adjustedPrice;
             }
 
-            // Функция округления до 4 знаков (до 10000)
             function roundUpTo4Digits(amount) {
                 return Math.ceil(amount / 10000) * 10000;
             }
             
-            // Функция расчета скидки на квартиру без учета ремонта
             function calculateDiscountWithoutRepair(contractPrice, repairCost) {
                 const priceWithoutRepair = contractPrice - repairCost;
-                
                 if (priceWithoutRepair < kv.currentBasePrice) {
                     return Math.ceil(kv.currentBasePrice - priceWithoutRepair);
                 }
                 return 0;
             }
             
-            // Функция сброса расчетов
             function resetKvCalculation() {
                 kv.currentBasePrice = 0;
                 kv.currentDiscountPrice = 0;
@@ -1813,22 +1820,18 @@
                 
                 kv.calculationTime.style.display = 'none';
                 
-                // Сброс полей ПВ
                 kv.clientPVPercentInput.value = 20.1;
-                kv.clientPVRubInput.value = 0;
+                kv.clientPVRubInput.value = FIXED_MIN_PAYMENT;
                 clientPVSource = 'percent';
             }
             
-            // Функция расчета для семейной ипотеки
             function calculateFamilyMortgage() {
                 const adjustedDiscountPrice = getAdjustedDiscountPrice();
                 const repairCost = parseInt(kv.repairCostInput.value) || 0;
                 const dduObjects = parseInt(kv.dduObjectsInput.value) || 0;
                 const kvSubsidyPercent = parseFloat(kv.kvSubsidyInput.value) || 0;
                 
-                // Определяем ПВ клиента в зависимости от источника
                 let clientPVPercent, clientPVRub;
-                
                 if (clientPVSource === 'percent') {
                     clientPVPercent = parseFloat(kv.clientPVPercentInput.value) || 0;
                 } else {
@@ -1840,7 +1843,6 @@
                 const maxIterations = 20;
                 
                 while (iterations < maxIterations) {
-                    // Если источник - рубли, вычисляем процент от текущей стоимости договора
                     if (clientPVSource === 'rub') {
                         if (contractPrice > 0) {
                             clientPVPercent = (clientPVRub / contractPrice) * 100;
@@ -1853,6 +1855,7 @@
                     
                     if (contractPrice - clientPVRubCalc >= 6000000) {
                         kv.familyWarning.style.display = 'block';
+                        kv.familyWarning.textContent = 'Увеличить ПВ клиента (тело кредита превышает 6 млн)';
                         kv.familyClientPV.textContent = "Увеличить ПВ клиента";
                         kv.familyKV.textContent = formatMoney(0);
                         kv.familyContractPrice.textContent = formatMoney(0);
@@ -1874,7 +1877,6 @@
                     iterations++;
                 }
                 
-                // Финальный расчет после сходимости
                 if (clientPVSource === 'rub') {
                     if (contractPrice > 0) {
                         clientPVPercent = (clientPVRub / contractPrice) * 100;
@@ -1884,11 +1886,33 @@
                 }
                 
                 let clientPVRubFinal = contractPrice * (clientPVPercent / 100);
+                
+                // Проверка минимального взноса 300 000
+                if (clientPVRubFinal < FIXED_MIN_PAYMENT) {
+                    kv.familyWarning.style.display = 'block';
+                    kv.familyWarning.textContent = `Первоначальный взнос должен быть не менее ${formatMoney(FIXED_MIN_PAYMENT)}`;
+                    kv.familyClientPV.textContent = formatMoney(0);
+                    kv.familyKV.textContent = formatMoney(0);
+                    kv.familyContractPrice.textContent = formatMoney(0);
+                    kv.familyLoanBody.textContent = formatMoney(0);
+                    kv.familyDiscount.textContent = "Нет скидки";
+                    kv.familyDiscount.className = "no-discount";
+                    // Обнуляем также стандартную ипотеку
+                    kv.standardClientPV.textContent = formatMoney(0);
+                    kv.standardKV.textContent = formatMoney(0);
+                    kv.standardContractPrice.textContent = formatMoney(0);
+                    kv.standardLoanBody.textContent = formatMoney(0);
+                    kv.standardDiscount.textContent = "Нет скидки";
+                    kv.standardDiscount.className = "no-discount";
+                    return;
+                }
+                
                 let kvRub = (contractPrice - clientPVRubFinal) * (kvSubsidyPercent / 100);
                 let loanBody = contractPrice - clientPVRubFinal;
                 
                 if (contractPrice - clientPVRubFinal >= 6000000) {
                     kv.familyWarning.style.display = 'block';
+                    kv.familyWarning.textContent = 'Увеличить ПВ клиента (тело кредита превышает 6 млн)';
                     kv.familyClientPV.textContent = "Увеличить ПВ клиента";
                     kv.familyKV.textContent = formatMoney(0);
                     kv.familyContractPrice.textContent = formatMoney(0);
@@ -1916,16 +1940,16 @@
                 kv.familyWarning.style.display = 'none';
             }
             
-            // Функция расчета для стандартной ипотеки
             function calculateStandardMortgage() {
+                // Стандартная ипотека не имеет отдельной проверки минимального взноса, 
+                // так как использует те же параметры, что и семейная. 
+                // Если семейная не прошла проверку, стандартная уже обнулена.
                 const adjustedDiscountPrice = getAdjustedDiscountPrice();
                 const repairCost = parseInt(kv.repairCostInput.value) || 0;
                 const dduObjects = parseInt(kv.dduObjectsInput.value) || 0;
                 const kvSubsidyPercent = parseFloat(kv.kvSubsidyInput.value) || 0;
                 
-                // Определяем ПВ клиента в зависимости от источника
                 let clientPVPercent;
-                
                 if (clientPVSource === 'percent') {
                     clientPVPercent = parseFloat(kv.clientPVPercentInput.value) || 0;
                 } else {
@@ -1976,7 +2000,6 @@
                 }
             }
             
-            // Функция расчета
             function calculateKv() {
                 if (kv.currentStatus === "Продано") {
                     return;
@@ -1985,18 +2008,15 @@
                 calculateFamilyMortgage();
                 calculateStandardMortgage();
                 
-                // Обновляем связанные поля после расчета
                 if (clientPVSource === 'percent') {
                     updateClientPVRubFromPercent();
                 } else {
                     updateClientPVPercentFromRub();
                 }
                 
-                // Обновляем время расчета
                 updateCalculationTime('kv-timeValue');
             }
 
-            // Заполнение списка ЖК для КВ
             function populateKvComplexes() {
                 const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(Boolean))];
                 kv.complexSelect.innerHTML = '<option value="">Выберите ЖК</option>';
@@ -2008,7 +2028,6 @@
                 });
             }
 
-            // События для КВ
             kv.complexSelect.addEventListener('change', function() {
                 const complex = this.value;
                 kv.sectionSelect.disabled = !complex;
@@ -2021,13 +2040,8 @@
                 updateRealtorDiscountVisibility();
 
                 if (complex) {
-                    // Фильтруем данные по выбранному ЖК
                     const apartmentsData = allApartmentsData.filter(item => item["Название ЖК"] === complex);
-                    
-                    const sections = [...new Set(apartmentsData
-                        .map(item => item["Название дома"])
-                        .filter(Boolean)
-                    )];
+                    const sections = [...new Set(apartmentsData.map(item => item["Название дома"]).filter(Boolean))];
                     kv.sectionSelect.innerHTML = '<option value="">Выберите дом</option>';
                     sections.forEach(section => {
                         const option = document.createElement('option');
@@ -2035,7 +2049,6 @@
                         option.textContent = section;
                         kv.sectionSelect.appendChild(option);
                     });
-                    
                     kv.sectionSelect.disabled = false;
                 }
             });
@@ -2051,12 +2064,8 @@
                 updateRealtorDiscountVisibility();
 
                 if (complex && section) {
-                    // Фильтруем данные по выбранному ЖК и дому
                     const apartments = allApartmentsData
-                        .filter(item => 
-                            item["Название ЖК"] === complex && 
-                            item["Название дома"] === section
-                        )
+                        .filter(item => item["Название ЖК"] === complex && item["Название дома"] === section)
                         .map(item => ({
                             number: item["Номер помещения"],
                             basePrice: item["Цена"],
@@ -2087,7 +2096,6 @@
                         option.dataset.planUrl = apartment.planUrl || '';
                         kv.apartmentSelect.appendChild(option);
                     });
-                    
                     kv.apartmentSelect.disabled = false;
                 }
             });
@@ -2138,21 +2146,18 @@
                     }
                     
                     kv.apartmentFullDetails.style.display = 'block';
-
                     kv.basePriceDisplay.textContent = formatMoney(kv.currentBasePrice);
                     
                     calculateKv();
                 }
             });
 
-            // Слушатели событий для КВ
             kv.managerDiscountCheckbox.addEventListener('change', calculateKv);
             kv.realtorDiscountCheckbox.addEventListener('change', calculateKv);
             kv.repairCostInput.addEventListener('input', calculateKv);
             kv.dduObjectsInput.addEventListener('input', calculateKv);
             kv.kvSubsidyInput.addEventListener('input', calculateKv);
             
-            // Обработчики для связанных полей ПВ
             kv.clientPVPercentInput.addEventListener('input', function() {
                 clientPVSource = 'percent';
                 calculateKv();
@@ -2163,7 +2168,6 @@
                 calculateKv();
             });
 
-            // Инициализация КВ
             populateKvComplexes();
             setupKvOptionsCollapsible();
         }
