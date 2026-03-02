@@ -651,7 +651,7 @@
                             </div>
                         </div>
                         
-                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, Астро) -->
+                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО, Комсомольский) -->
                         <div class="option-section" id="chpv2-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -882,7 +882,7 @@
                             </div>
                         </div>
                         
-                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, Астро) -->
+                        <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО, Комсомольский) -->
                         <div class="option-section" id="kv-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -1174,8 +1174,8 @@
 
             // Функция обновления видимости скидки риелтора
             function updateRealtorDiscountVisibility() {
-                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро
-                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский' || chpv2.currentComplex === 'АСТРО') {
+                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО и Комсомольский
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский' || chpv2.currentComplex === 'АСТРО' || chpv2.currentComplex === 'Комсомольский') {
                     chpv2.realtorDiscountSection.style.display = 'block';
                 } else {
                     chpv2.realtorDiscountSection.style.display = 'none';
@@ -1188,8 +1188,8 @@
             function getAdjustedDiscountPrice() {
                 let adjustedPrice = chpv2.currentDiscountPrice;
                 
-                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро: добавляем 200 000 и вычитаем скидки
-                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский' || chpv2.currentComplex === 'АСТРО') {
+                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО и Комсомольский: добавляем 200 000 и вычитаем скидки
+                if (chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || chpv2.currentComplex === 'Тёплые кварталы' || chpv2.currentComplex === 'Бодровский' || chpv2.currentComplex === 'АСТРО' || chpv2.currentComplex === 'Комсомольский') {
                     adjustedPrice += 200000;
                     
                     if (chpv2.managerDiscountCheckbox.checked) {
@@ -1756,8 +1756,8 @@
             }
 
             function updateRealtorDiscountVisibility() {
-                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро
-                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский' || kv.currentComplex === 'АСТРО') {
+                // Показываем для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО и Комсомольский
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский' || kv.currentComplex === 'АСТРО' || kv.currentComplex === 'Комсомольский') {
                     kv.realtorDiscountSection.style.display = 'block';
                 } else {
                     kv.realtorDiscountSection.style.display = 'none';
@@ -1767,8 +1767,8 @@
 
             function getAdjustedDiscountPrice() {
                 let adjustedPrice = kv.currentDiscountPrice;
-                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский и Астро: добавляем 200 000 и вычитаем скидки
-                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский' || kv.currentComplex === 'АСТРО') {
+                // Для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО и Комсомольский: добавляем 200 000 и вычитаем скидки
+                if (kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || kv.currentComplex === 'Тёплые кварталы' || kv.currentComplex === 'Бодровский' || kv.currentComplex === 'АСТРО' || kv.currentComplex === 'Комсомольский') {
                     adjustedPrice += 200000;
                     if (kv.managerDiscountCheckbox.checked) {
                         adjustedPrice -= 100000;
