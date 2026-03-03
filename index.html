@@ -783,6 +783,8 @@
                     <div id="chpv2-apartmentRooms"></div>
                     <div id="chpv2-apartmentArea"></div>
                     <div id="chpv2-apartmentFloor"></div>
+                    <!-- ADDED: дата ввода -->
+                    <div id="chpv2-apartmentCompletionDate"></div>
                     <div id="chpv2-apartmentPlan"></div>
                 </div>
             </div>
@@ -971,6 +973,8 @@
                     <div id="kv-apartmentRooms"></div>
                     <div id="kv-apartmentArea"></div>
                     <div id="kv-apartmentFloor"></div>
+                    <!-- ADDED: дата ввода -->
+                    <div id="kv-apartmentCompletionDate"></div>
                     <div id="kv-apartmentPlan"></div>
                 </div>
             </div>
@@ -1071,6 +1075,29 @@
             }
         }
 
+        // ==================== Функция определения даты ввода ====================
+        function getCompletionDate(complex, section) {
+            switch (complex) {
+                case 'Тёплые кварталы':
+                    return 'декабрь 2026';
+                case 'АСТРО':
+                    return 'март 2026';
+                case 'Счастье':
+                    if (section && section.includes('ГП-4')) {
+                        return 'май 2026';
+                    }
+                    return 'не указана';
+                case 'ЧИСТЫЕ ПРУДЫ':
+                    return 'август 2027';
+                case 'Комсомольский':
+                    return 'ноябрь 2027';
+                case 'Бодровский':
+                    return 'март 2027';
+                default:
+                    return 'не указана';
+            }
+        }
+
         // ==================== КАЛЬКУЛЯТОР ЧПВ 2.0 ====================
         function initializeChpv2Calculator() {
             // Элементы DOM для ЧПВ 2.0
@@ -1105,7 +1132,7 @@
                 winwinCommissionValue: document.getElementById('chpv2-winwinCommissionValue'),
                 winwinTotalItem: document.getElementById('chpv2-winwinTotalItem'),
                 resultWinwinTotal: document.getElementById('chpv2-resultWinwinTotal'),
-                winwinWarning: document.getElementById('chpv2-winwinWarning'), // новый элемент предупреждения
+                winwinWarning: document.getElementById('chpv2-winwinWarning'),
                 
                 // Результаты
                 resultContractPrice: document.getElementById('chpv2-resultContractPrice'),
@@ -1127,6 +1154,8 @@
                 apartmentRooms: document.getElementById('chpv2-apartmentRooms'),
                 apartmentArea: document.getElementById('chpv2-apartmentArea'),
                 apartmentFloor: document.getElementById('chpv2-apartmentFloor'),
+                // ADDED: элемент для даты ввода
+                apartmentCompletionDate: document.getElementById('chpv2-apartmentCompletionDate'),
                 apartmentPlan: document.getElementById('chpv2-apartmentPlan'),
                 
                 // Текущие данные
@@ -1342,6 +1371,9 @@
                 chpv2.apartmentRooms.textContent = `Комнатность: ${getRoomTypeText(parseInt(chpv2.currentRoomType))}`;
                 chpv2.apartmentArea.textContent = `Площадь: ${chpv2.currentArea} м²`;
                 chpv2.apartmentFloor.textContent = `Этаж: ${chpv2.currentFloor}`;
+                // ADDED: дата ввода
+                const completionDate = getCompletionDate(chpv2.currentComplex, chpv2.currentSection);
+                chpv2.apartmentCompletionDate.textContent = `Дата ввода: ${completionDate}`;
                 
                 if (chpv2.currentPlanUrl && chpv2.currentPlanUrl.trim() !== '') {
                     chpv2.apartmentPlan.innerHTML = `<a href="${chpv2.currentPlanUrl}" target="_blank" class="plan-button">План квартиры</a>`;
@@ -1704,6 +1736,8 @@
                 apartmentRooms: document.getElementById('kv-apartmentRooms'),
                 apartmentArea: document.getElementById('kv-apartmentArea'),
                 apartmentFloor: document.getElementById('kv-apartmentFloor'),
+                // ADDED: элемент для даты ввода
+                apartmentCompletionDate: document.getElementById('kv-apartmentCompletionDate'),
                 apartmentPlan: document.getElementById('kv-apartmentPlan'),
 
                 currentBasePrice: 0,
@@ -2138,6 +2172,9 @@
                     kv.apartmentRooms.textContent = `Комнатность: ${getRoomTypeText(parseInt(kv.currentRoomType))}`;
                     kv.apartmentArea.textContent = `Площадь: ${kv.currentArea} м²`;
                     kv.apartmentFloor.textContent = `Этаж: ${kv.currentFloor}`;
+                    // ADDED: дата ввода
+                    const completionDate = getCompletionDate(kv.currentComplex, kv.currentSection);
+                    kv.apartmentCompletionDate.textContent = `Дата ввода: ${completionDate}`;
                     
                     if (kv.currentPlanUrl && kv.currentPlanUrl.trim() !== '') {
                         kv.apartmentPlan.innerHTML = `<a href="${kv.currentPlanUrl}" target="_blank" class="plan-button">План квартиры</a>`;
