@@ -651,7 +651,6 @@
                         </div>
                         
                         <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО, Комсомольский и для Счастье ГП-4) -->
-                        <!-- ADDED: добавлено условие для Счастье ГП-4 -->
                         <div class="option-section" id="chpv2-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -762,6 +761,10 @@
                     <span id="chpv2-resultWinwinTotal" class="info">0 ₽</span>
                 </div>
                 <div id="chpv2-winwinWarning" class="payment-warning" style="display: none;"></div>
+                
+                <!-- Новый блок предупреждения для лимита Паритет ПВ -->
+                <div id="chpv2-companyPVWarning" class="payment-warning" style="display: none;"></div>
+
                 <div class="result-item">
                     <span>Скидка на квартиру без учета ремонта:</span>
                     <span id="chpv2-resultDiscountWithoutRepair" class="no-discount">Нет скидки</span>
@@ -878,7 +881,6 @@
                         </div>
                         
                         <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО, Комсомольский и для Счастье ГП-4) -->
-                        <!-- ADDED: добавлено условие для Счастье ГП-4 -->
                         <div class="option-section" id="kv-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group">
@@ -1127,6 +1129,9 @@
                 resultBankCommissionPercent: document.getElementById('chpv2-resultBankCommissionPercent'),
                 resultDiscountWithoutRepair: document.getElementById('chpv2-resultDiscountWithoutRepair'),
                 
+                // Новый элемент для предупреждения о лимите Паритет ПВ
+                companyPVWarning: document.getElementById('chpv2-companyPVWarning'),
+                
                 apartmentComplex: document.getElementById('chpv2-apartmentComplex'),
                 apartmentSection: document.getElementById('chpv2-apartmentSection'),
                 apartmentNumber: document.getElementById('chpv2-apartmentNumber'),
@@ -1153,6 +1158,7 @@
             const increasedPriceComplexes = ['Бодровский', 'Комсомольский', 'ЧИСТЫЕ ПРУДЫ'];
             const PRICE_INCREASE_RATE = 0.03;
             const FIXED_MIN_PAYMENT = 300000;
+            const COMPANY_PV_LIMIT = 1200000; // лимит Паритет ПВ
 
             function isPriceIncreasedComplex(complex) {
                 return increasedPriceComplexes.includes(complex);
@@ -1322,6 +1328,8 @@
                 chpv2.resultContractPrice.textContent = formatMoney(0);
                 chpv2.resultTotalPV.textContent = formatMoney(0);
                 chpv2.resultCompanyPV.textContent = formatMoney(0);
+                // Сброс цвета текста
+                chpv2.resultCompanyPV.style.color = '';
                 chpv2.resultClientPV.textContent = formatMoney(0);
                 chpv2.resultLoanBody.textContent = formatMoney(0);
                 chpv2.resultPVPercent.textContent = "0%";
@@ -1336,6 +1344,11 @@
                 chpv2.winwinTotalItem.style.display = 'none';
                 chpv2.resultWinwinTotal.textContent = formatMoney(0);
                 chpv2.winwinWarning.style.display = 'none';
+                
+                // Сброс предупреждения о лимите Паритет ПВ
+                if (chpv2.companyPVWarning) {
+                    chpv2.companyPVWarning.style.display = 'none';
+                }
                 
                 chpv2.minPaymentInfo.textContent = '';
                 chpv2.paymentWarning.style.display = 'none';
@@ -1399,6 +1412,8 @@
                     chpv2.winwinTotalItem.style.display = 'none';
                     chpv2.calculationTime.style.display = 'none';
                     chpv2.winwinWarning.style.display = 'none';
+                    // Скрываем предупреждение о лимите
+                    if (chpv2.companyPVWarning) chpv2.companyPVWarning.style.display = 'none';
                     return;
                 } else {
                     chpv2.paymentWarning.style.display = 'none';
@@ -1429,6 +1444,17 @@
                 chpv2.resultClientPV.textContent = formatMoney(clientPV);
                 chpv2.resultLoanBody.textContent = formatMoney(loanBody);
                 chpv2.resultPVPercent.textContent = `${pvPercent}%`;
+                
+                // Проверка лимита Паритет ПВ (кроме АСТРО)
+                const isExceptAstro = chpv2.currentComplex === 'АСТРО';
+                if (!isExceptAstro && companyPV > COMPANY_PV_LIMIT) {
+                    chpv2.companyPVWarning.style.display = 'block';
+                    chpv2.companyPVWarning.textContent = 'Превышен установленный лимит (1 200 000 ₽). Необходимо увеличить первоначальный взнос клиента.';
+                    chpv2.resultCompanyPV.style.color = 'var(--red)';
+                } else {
+                    chpv2.companyPVWarning.style.display = 'none';
+                    chpv2.resultCompanyPV.style.color = '';
+                }
                 
                 if (forBank) {
                     chpv2.resultBankCommission.textContent = formatMoney(bankCommission);
@@ -2181,4 +2207,3 @@
     </script>
 </body>
 </html>
-
