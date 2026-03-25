@@ -694,6 +694,29 @@
                                 Сумма комиссии: <span id="chpv2-winwinCommissionValue">0 ₽</span>
                             </div>
                         </div>
+
+                        <!-- Winwin Bonus + платим ипотеку за вас -->
+                        <div class="option-section" id="chpv2-winwinPlusSection">
+                            <div class="option-title">Winwin Bonus + платим ипотеку за вас</div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="chpv2-winwinPlusActive">
+                                <label for="chpv2-winwinPlusActive">Применить</label>
+                            </div>
+                            <div id="chpv2-winwinPlusOptions" style="display: none; margin-top: 15px;">
+                                <div class="form-group">
+                                    <label>Вариант:</label>
+                                    <select id="chpv2-winwinPlusType">
+                                        <option value="withoutFloors">Без этажей</option>
+                                        <option value="withFloors">С этажами</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="chpv2-ipotekaBonus">Бонусы на ипотеку (₽):</label>
+                                    <input type="number" id="chpv2-ipotekaBonus" value="0" min="0" max="420000" step="1000">
+                                    <div class="option-description">Максимум 420,000 ₽</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -762,7 +785,18 @@
                 </div>
                 <div id="chpv2-winwinWarning" class="payment-warning" style="display: none;"></div>
                 
-                <!-- Новый блок предупреждения для лимита Паритет ПВ -->
+                <!-- Новые строки для Winwin Bonus + платим ипотеку за вас -->
+                <div id="chpv2-winwinPlusCashbackItem" class="result-item" style="display: none;">
+                    <span>Кэшбек (Winwin Bonus):</span>
+                    <span id="chpv2-resultCashback" class="info">0 ₽</span>
+                </div>
+                <div id="chpv2-winwinPlusIpotekaItem" class="result-item" style="display: none;">
+                    <span>Бонусы на ипотеку:</span>
+                    <span id="chpv2-resultIpotekaBonus" class="info">0 ₽</span>
+                </div>
+                <div id="chpv2-winwinPlusWarning" class="payment-warning" style="display: none;"></div>
+                
+                <!-- Блок предупреждения для лимита Паритет ПВ -->
                 <div id="chpv2-companyPVWarning" class="payment-warning" style="display: none;"></div>
 
                 <div class="result-item">
@@ -1117,6 +1151,17 @@
                 resultWinwinTotal: document.getElementById('chpv2-resultWinwinTotal'),
                 winwinWarning: document.getElementById('chpv2-winwinWarning'),
                 
+                // Новые переменные для Winwin Plus
+                winwinPlusActive: document.getElementById('chpv2-winwinPlusActive'),
+                winwinPlusOptions: document.getElementById('chpv2-winwinPlusOptions'),
+                winwinPlusType: document.getElementById('chpv2-winwinPlusType'),
+                ipotekaBonusInput: document.getElementById('chpv2-ipotekaBonus'),
+                winwinPlusCashbackItem: document.getElementById('chpv2-winwinPlusCashbackItem'),
+                resultCashback: document.getElementById('chpv2-resultCashback'),
+                winwinPlusIpotekaItem: document.getElementById('chpv2-winwinPlusIpotekaItem'),
+                resultIpotekaBonus: document.getElementById('chpv2-resultIpotekaBonus'),
+                winwinPlusWarning: document.getElementById('chpv2-winwinPlusWarning'),
+                
                 resultContractPrice: document.getElementById('chpv2-resultContractPrice'),
                 resultTotalPV: document.getElementById('chpv2-resultTotalPV'),
                 resultCompanyPV: document.getElementById('chpv2-resultCompanyPV'),
@@ -1383,6 +1428,62 @@
                     return;
                 }
                 
+                // Проверяем если включен Winwin Plus
+                if (chpv2.winwinPlusActive.checked) {
+                    const result = calculateWithWinwinPlus(chpv2.bankDiscountCheckbox.checked);
+                    
+                    // Скрываем результаты обычного расчета
+                    chpv2.winwinTotalItem.style.display = 'none';
+                    chpv2.winwinCommissionDisplay.style.display = 'none';
+                    
+                    // Показываем результаты Winwin Plus
+                    chpv2.winwinPlusCashbackItem.style.display = 'flex';
+                    chpv2.resultCashback.textContent = formatMoney(result.cashback);
+                    
+                    chpv2.winwinPlusIpotekaItem.style.display = 'flex';
+                    chpv2.resultIpotekaBonus.textContent = formatMoney(result.ipotekaBonus);
+                    
+                    // Показываем основные результаты
+                    chpv2.resultContractPrice.textContent = formatMoney(result.contractPrice);
+                    chpv2.resultTotalPV.textContent = formatMoney(result.totalPV);
+                    chpv2.resultCompanyPV.textContent = formatMoney(result.companyPV);
+                    chpv2.resultClientPV.textContent = formatMoney(result.clientPV);
+                    chpv2.resultLoanBody.textContent = formatMoney(result.loanBody);
+                    chpv2.resultPVPercent.textContent = `${result.pvPercent}%`;
+                    
+                    // Показываем предупреждение если есть
+                    if (!result.isValidBonus) {
+                        chpv2.winwinPlusWarning.style.display = 'block';
+                        chpv2.winwinPlusWarning.textContent = result.warningMessage;
+                    } else {
+                        chpv2.winwinPlusWarning.style.display = 'none';
+                    }
+                    
+                    // Скидка без ремонта
+                    const discountWithoutRepair = calculateDiscountWithoutRepair(result.contractPrice);
+                    if (discountWithoutRepair > 0) {
+                        chpv2.resultDiscountWithoutRepair.textContent = formatMoney(discountWithoutRepair);
+                        chpv2.resultDiscountWithoutRepair.className = "discount";
+                    } else {
+                        chpv2.resultDiscountWithoutRepair.textContent = "Нет скидки";
+                        chpv2.resultDiscountWithoutRepair.className = "no-discount";
+                    }
+                    
+                    // Скрываем результаты обычного Winwin Bonus
+                    chpv2.bankCommissionItem.style.display = 'none';
+                    chpv2.bankCommissionPercentItem.style.display = 'none';
+                    chpv2.winwinWarning.style.display = 'none';
+                    chpv2.companyPVWarning.style.display = 'none';
+                    
+                    updateCalculationTime('chpv2-timeValue');
+                    return;
+                }
+                
+                // Стандартный расчет (Winwin Plus не включен)
+                chpv2.winwinPlusCashbackItem.style.display = 'none';
+                chpv2.winwinPlusIpotekaItem.style.display = 'none';
+                chpv2.winwinPlusWarning.style.display = 'none';
+                
                 const clientPV = parseInt(chpv2.clientDownPaymentInput.value) || 0;
                 const forBank = chpv2.bankDiscountCheckbox.checked;
                 const winwinEnabled = chpv2.winwinBonusCheckbox.checked;
@@ -1504,6 +1605,146 @@
                 }
                 
                 updateCalculationTime('chpv2-timeValue');
+            }
+
+            function calculateWithWinwinPlus(includeBankCommission) {
+                const base = getAdjustedDiscountPrice() + (parseInt(chpv2.repairCostInput.value)||0) + (parseInt(chpv2.dduObjectsInput.value)||0);
+                const clientPV = parseInt(chpv2.clientDownPaymentInput.value) || 0;
+                const ipotekaBonusRaw = parseFloat(chpv2.ipotekaBonusInput.value) || 0;
+                const ipotekaBonus = Math.min(ipotekaBonusRaw, 420000);
+                const type = chpv2.winwinPlusType.value;
+                const withFloors = (type === 'withFloors');
+                
+                let contractPrice = base;
+                let iterations = 0;
+                const maxIter = 30;
+                let bonusPV = 0, bonusPercent = 0, hiddenComm = 0;
+                
+                while (iterations < maxIter) {
+                    let totalPV = Math.ceil(contractPrice * 0.201);
+                    let companyPV = totalPV - clientPV;
+                    if (companyPV < 0) companyPV = 0;
+                    
+                    // Бонусы в ПВ = Паритет ПВ
+                    bonusPV = companyPV;
+                    
+                    if (withFloors) {
+                        // Для варианта "с этажами": бонус на % = 5% от бонусов в ПВ
+                        bonusPercent = bonusPV * 0.05;
+                        // Скрытая комиссия = 5% от бонусов на ипотеку
+                        hiddenComm = ipotekaBonus * 0.05;
+                    } else {
+                        // Для варианта "без этажей": нет бонуса на %, скрытая комиссия = 5% от суммы бонусов в ПВ и бонусов на ипотеку
+                        bonusPercent = 0;
+                        hiddenComm = (bonusPV + ipotekaBonus) * 0.05;
+                    }
+                    
+                    let newContractPrice = base + bonusPV + bonusPercent + ipotekaBonus + hiddenComm;
+                    
+                    if (includeBankCommission) {
+                        let loanBody = newContractPrice - totalPV;
+                        let bankComm = loanBody * getBankCommissionRate();
+                        newContractPrice += bankComm;
+                        // пересчет с учетом банковской комиссии
+                        totalPV = Math.ceil(newContractPrice * 0.201);
+                        companyPV = totalPV - clientPV;
+                        if (companyPV < 0) companyPV = 0;
+                        bonusPV = companyPV;
+                        if (withFloors) {
+                            bonusPercent = bonusPV * 0.05;
+                            hiddenComm = ipotekaBonus * 0.05;
+                        } else {
+                            bonusPercent = 0;
+                            hiddenComm = (bonusPV + ipotekaBonus) * 0.05;
+                        }
+                        newContractPrice = base + bonusPV + bonusPercent + ipotekaBonus + hiddenComm + bankComm;
+                    }
+                    
+                    if (Math.abs(newContractPrice - contractPrice) < 0.01) {
+                        contractPrice = newContractPrice;
+                        break;
+                    }
+                    contractPrice = newContractPrice;
+                    iterations++;
+                }
+                
+                // Финальные значения
+                let totalPV = Math.ceil(contractPrice * 0.201);
+                let companyPV = totalPV - clientPV;
+                if (companyPV < 0) companyPV = 0;
+                let finalBonusPV = companyPV;
+                let finalBonusPercent = withFloors ? finalBonusPV * 0.05 : 0;
+                let finalHiddenComm = withFloors ? ipotekaBonus * 0.05 : (finalBonusPV + ipotekaBonus) * 0.05;
+                let finalContract = base + finalBonusPV + finalBonusPercent + ipotekaBonus + finalHiddenComm;
+                
+                if (includeBankCommission) {
+                    let loanBody = finalContract - totalPV;
+                    let bankComm = loanBody * getBankCommissionRate();
+                    finalContract += bankComm;
+                    totalPV = Math.ceil(finalContract * 0.201);
+                    companyPV = totalPV - clientPV;
+                    if (companyPV < 0) companyPV = 0;
+                    finalBonusPV = companyPV;
+                    finalBonusPercent = withFloors ? finalBonusPV * 0.05 : 0;
+                    finalHiddenComm = withFloors ? ipotekaBonus * 0.05 : (finalBonusPV + ipotekaBonus) * 0.05;
+                    finalContract = base + finalBonusPV + finalBonusPercent + ipotekaBonus + finalHiddenComm + bankComm;
+                }
+                
+                totalPV = Math.ceil(finalContract * 0.201);
+                companyPV = totalPV - clientPV;
+                if (companyPV < 0) companyPV = 0;
+                finalBonusPV = companyPV;
+                finalBonusPercent = withFloors ? finalBonusPV * 0.05 : 0;
+                finalHiddenComm = withFloors ? ipotekaBonus * 0.05 : (finalBonusPV + ipotekaBonus) * 0.05;
+                finalContract = base + finalBonusPV + finalBonusPercent + ipotekaBonus + finalHiddenComm;
+                if (includeBankCommission) {
+                    let loanBody = finalContract - totalPV;
+                    let bankComm = loanBody * getBankCommissionRate();
+                    finalContract += bankComm;
+                }
+                
+                const totalBonusSum = finalBonusPV + finalBonusPercent + ipotekaBonus;
+                const totalBonusPercentValue = (totalBonusSum / finalContract) * 100;
+                const isWithinPercentLimit = totalBonusPercentValue >= 5.26 && totalBonusPercentValue <= 21.16;
+                const isWithinAmountLimit = totalBonusSum <= 1200000;
+                const isValidBonus = isWithinPercentLimit && isWithinAmountLimit;
+                
+                // Формируем сообщение о превышении
+                let warningMessage = '';
+                if (!isValidBonus) {
+                    if (totalBonusSum > 1200000) {
+                        const overAmount = totalBonusSum - 1200000;
+                        warningMessage = `Сумма бонусов (${formatMoney(totalBonusSum)}) превышает лимит 1 200 000 ₽ на ${formatMoney(overAmount)}. Необходимо повысить ПВ клиента или снизить бонусы на ипотеку.`;
+                    } else if (!isWithinPercentLimit) {
+                        if (totalBonusPercentValue > 21.16) {
+                            warningMessage = `Общая сумма бонусов (${formatMoney(totalBonusSum)}) превышает допустимый лимит (21.16% от стоимости договора). Необходимо повысить ПВ клиента или снизить бонусы на ипотеку.`;
+                        } else if (totalBonusPercentValue < 5.26) {
+                            warningMessage = `Общая сумма бонусов (${formatMoney(totalBonusSum)}) ниже минимального порога (5.26% от стоимости договора). Необходимо снизить ПВ клиента или увеличить бонусы.`;
+                        } else {
+                            warningMessage = `Сумма бонусов (${formatMoney(totalBonusSum)}) не соответствует установленным лимитам. Необходимо повысить ПВ клиента или снизить бонусы на ипотеку.`;
+                        }
+                    }
+                }
+                
+                // Для отображения кэшбека: если с этажами, то суммируем bonusPV + bonusPercent
+                const cashback = withFloors ? finalBonusPV + finalBonusPercent : finalBonusPV;
+                
+                return {
+                    contractPrice: Math.round(finalContract),
+                    totalPV: Math.round(totalPV),
+                    companyPV: Math.round(companyPV),
+                    clientPV: clientPV,
+                    bonusPV: Math.round(finalBonusPV),
+                    bonusPercent: Math.round(finalBonusPercent),
+                    ipotekaBonus: ipotekaBonus,
+                    hiddenCommission: Math.round(finalHiddenComm),
+                    cashback: Math.round(cashback),
+                    showBonusPercent: withFloors, // флаг, показывать ли строку "Бонус на %"
+                    isValidBonus: isValidBonus,
+                    warningMessage: warningMessage,
+                    loanBody: Math.round(finalContract - totalPV),
+                    pvPercent: (totalPV / finalContract * 100).toFixed(6)
+                };
             }
 
             function populateChpv2Complexes() {
@@ -1670,6 +1911,23 @@
             chpv2.clientDownPaymentInput.addEventListener('input', calculateChpv2);
             
             chpv2.winwinBonusCheckbox.addEventListener('change', calculateChpv2);
+
+            // Обработчики для Winwin Plus
+            chpv2.winwinPlusActive.addEventListener('change', function() {
+                if (this.checked) {
+                    chpv2.winwinPlusOptions.style.display = 'block';
+                    calculateChpv2();
+                } else {
+                    chpv2.winwinPlusOptions.style.display = 'none';
+                    chpv2.winwinPlusCashbackItem.style.display = 'none';
+                    chpv2.winwinPlusIpotekaItem.style.display = 'none';
+                    chpv2.winwinPlusWarning.style.display = 'none';
+                    calculateChpv2();
+                }
+            });
+
+            chpv2.winwinPlusType.addEventListener('change', calculateChpv2);
+            chpv2.ipotekaBonusInput.addEventListener('input', calculateChpv2);
 
             populateChpv2Complexes();
             setupChpv2OptionsCollapsible();
