@@ -733,10 +733,10 @@
                     </div>
                 </div>
                 
-                <!-- Первоначальный взнос клиента (минимум 300 000) -->
+                <!-- Первоначальный взнос клиента -->
                 <div class="form-group">
                     <label for="chpv2-clientDownPayment">Первоначальный взнос клиента (₽):</label>
-                    <input type="number" id="chpv2-clientDownPayment" value="300000" min="300000" step="10000">
+                    <input type="number" id="chpv2-clientDownPayment" value="0" min="0" step="10000">
                     <div id="chpv2-minPaymentInfo" class="min-payment-info"></div>
                 </div>
                 
@@ -1202,7 +1202,7 @@
 
             const increasedPriceComplexes = ['Бодровский', 'Комсомольский', 'ЧИСТЫЕ ПРУДЫ'];
             const PRICE_INCREASE_RATE = 0.03;
-            const FIXED_MIN_PAYMENT = 300000;
+            const FIXED_MIN_PAYMENT = 0;
             const COMPANY_PV_LIMIT = 1200000; // лимит Паритет ПВ
 
             function isPriceIncreasedComplex(complex) {
@@ -1490,35 +1490,8 @@
                 
                 const minClientPayment = calculateMinClientPayment();
                 
-                chpv2.minPaymentInfo.textContent = `Минимальный первоначальный взнос: ${formatMoney(FIXED_MIN_PAYMENT)}`;
-                
-                if (clientPV < minClientPayment) {
-                    chpv2.paymentWarning.style.display = 'block';
-                    const amountToAdd = minClientPayment - clientPV;
-                    chpv2.paymentWarning.textContent = `Первоначальный взнос клиента меньше минимального требуемого! Необходимо добавить еще ${formatMoney(amountToAdd)}`;
-                    
-                    chpv2.resultContractPrice.textContent = formatMoney(0);
-                    chpv2.resultTotalPV.textContent = formatMoney(0);
-                    chpv2.resultCompanyPV.textContent = formatMoney(0);
-                    chpv2.resultClientPV.textContent = formatMoney(clientPV);
-                    chpv2.resultLoanBody.textContent = formatMoney(0);
-                    chpv2.resultPVPercent.textContent = "0%";
-                    chpv2.resultBankCommission.textContent = formatMoney(0);
-                    chpv2.resultBankCommissionPercent.textContent = "0%";
-                    chpv2.bankCommissionItem.style.display = 'none';
-                    chpv2.bankCommissionPercentItem.style.display = 'none';
-                    chpv2.resultDiscountWithoutRepair.textContent = "Нет скидки";
-                    chpv2.resultDiscountWithoutRepair.className = "no-discount";
-                    chpv2.winwinCommissionDisplay.style.display = 'none';
-                    chpv2.winwinTotalItem.style.display = 'none';
-                    chpv2.calculationTime.style.display = 'none';
-                    chpv2.winwinWarning.style.display = 'none';
-                    // Скрываем предупреждение о лимите
-                    if (chpv2.companyPVWarning) chpv2.companyPVWarning.style.display = 'none';
-                    return;
-                } else {
-                    chpv2.paymentWarning.style.display = 'none';
-                }
+                chpv2.minPaymentInfo.textContent = '';
+                chpv2.paymentWarning.style.display = 'none';
                 
                 let result;
                 
@@ -1991,7 +1964,7 @@
                 currentPlanUrl: ''
             };
 
-            const FIXED_MIN_PAYMENT = 300000;
+            const FIXED_MIN_PAYMENT = 0;
             let clientPVSource = 'percent';
 
             function updateClientPVRubFromPercent() {
@@ -2178,24 +2151,6 @@
                 }
                 
                 let clientPVRubFinal = contractPrice * (clientPVPercent / 100);
-                
-                if (clientPVRubFinal < FIXED_MIN_PAYMENT) {
-                    kv.familyWarning.style.display = 'block';
-                    kv.familyWarning.textContent = `Первоначальный взнос должен быть не менее ${formatMoney(FIXED_MIN_PAYMENT)}`;
-                    kv.familyClientPV.textContent = formatMoney(0);
-                    kv.familyKV.textContent = formatMoney(0);
-                    kv.familyContractPrice.textContent = formatMoney(0);
-                    kv.familyLoanBody.textContent = formatMoney(0);
-                    kv.familyDiscount.textContent = "Нет скидки";
-                    kv.familyDiscount.className = "no-discount";
-                    kv.standardClientPV.textContent = formatMoney(0);
-                    kv.standardKV.textContent = formatMoney(0);
-                    kv.standardContractPrice.textContent = formatMoney(0);
-                    kv.standardLoanBody.textContent = formatMoney(0);
-                    kv.standardDiscount.textContent = "Нет скидки";
-                    kv.standardDiscount.className = "no-discount";
-                    return;
-                }
                 
                 let kvRub = (contractPrice - clientPVRubFinal) * (kvSubsidyPercent / 100);
                 let loanBody = contractPrice - clientPVRubFinal;
