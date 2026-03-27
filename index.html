@@ -572,6 +572,185 @@
                 max-width: 200px;
             }
         }
+
+        /* ===== Коммерческое предложение ===== */
+        .kp-btn {
+            display: block;
+            width: 100%;
+            margin-top: 20px;
+            padding: 12px 20px;
+            background-color: var(--red);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: background-color 0.3s;
+        }
+        .kp-btn:hover { background-color: #a00000; }
+        .kp-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 9999;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px;
+            overflow-y: auto;
+        }
+        .kp-dialog {
+            background: #f4f4f4;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1368px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.35);
+            flex-shrink: 0;
+        }
+        .kp-toolbar {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            background: #ffffff;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+        }
+        .kp-download-btn {
+            background-color: var(--red);
+            color: white;
+            border: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .kp-download-btn:hover { background-color: #a00000; }
+        .kp-close-btn {
+            background: none;
+            border: 1px solid #bbb;
+            padding: 9px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #555;
+            transition: background-color 0.2s;
+        }
+        .kp-close-btn:hover { background: #eee; }
+        .kp-preview {
+            padding: 32px 36px;
+            background: #ffffff;
+            border-radius: 0 0 12px 12px;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            color: #222;
+        }
+        .kp-offer-header {
+            text-align: center;
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--red);
+        }
+        .kp-offer-title {
+            font-size: 1.55em;
+            font-weight: 700;
+            color: var(--red);
+            margin-bottom: 6px;
+            letter-spacing: 0.02em;
+        }
+        .kp-offer-date { font-size: 0.88em; color: #888; }
+        .kp-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+            gap: 24px;
+            align-items: start;
+        }
+        .kp-left-column {
+            min-width: 0;
+        }
+        .kp-right-column {
+            min-width: 0;
+            position: sticky;
+            top: 12px;
+        }
+        .kp-section { margin-bottom: 24px; }
+        .kp-section-title {
+            font-size: 0.82em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #444;
+            border-left: 4px solid var(--red);
+            padding-left: 10px;
+            margin-bottom: 12px;
+        }
+        .kp-data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 7px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.93em;
+            gap: 12px;
+        }
+        .kp-data-row:last-child { border-bottom: none; }
+        .kp-data-label { color: #555; flex: 1; }
+        .kp-data-value {
+            font-weight: 700;
+            color: #111;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .kp-apt-row {
+            padding: 5px 0;
+            border-bottom: 1px solid #f4f4f4;
+            font-size: 0.92em;
+            color: #333;
+        }
+        .kp-apt-row:last-child { border-bottom: none; }
+        .kp-mortgage-block-title {
+            font-size: 0.88em;
+            font-weight: 700;
+            color: var(--red);
+            margin: 16px 0 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .kp-plan-block { margin-top: 0; text-align: center; }
+        .kp-plan-img {
+            max-width: 100%;
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 14px;
+            border: 1px solid #e0e0e0;
+            display: block;
+        }
+        .kp-plan-frame {
+            width: 100%;
+            min-height: 560px;
+            margin-top: 14px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+            display: block;
+        }
+        @media (max-width: 980px) {
+            .kp-layout {
+                grid-template-columns: 1fr;
+            }
+            .kp-right-column {
+                position: static;
+            }
+            .kp-plan-frame {
+                min-height: 420px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -819,6 +998,7 @@
                     <div id="chpv2-apartmentCompletionDate"></div>
                     <div id="chpv2-apartmentPlan"></div>
                 </div>
+                <button id="chpv2-createKP" class="kp-btn" style="display:none" onclick="openKPModal('chpv2')">&#128206; Отправить клиенту</button>
             </div>
         </div>
     </div>
@@ -1003,6 +1183,7 @@
                     <div id="kv-apartmentCompletionDate"></div>
                     <div id="kv-apartmentPlan"></div>
                 </div>
+                <button id="kv-createKP" class="kp-btn" style="display:none" onclick="openKPModal('kv')">&#128206; Отправить клиенту</button>
             </div>
         </div>
     </div>
@@ -1398,6 +1579,8 @@
                 chpv2.minPaymentInfo.textContent = '';
                 chpv2.paymentWarning.style.display = 'none';
                 chpv2.calculationTime.style.display = 'none';
+                var kpBtn = document.getElementById('chpv2-createKP');
+                if (kpBtn) kpBtn.style.display = 'none';
             }
             
             function updateChpv2ApartmentFullDetails() {
@@ -1417,6 +1600,8 @@
                 }
                 
                 chpv2.apartmentFullDetails.style.display = 'block';
+                var kpBtn = document.getElementById('chpv2-createKP');
+                if (kpBtn) kpBtn.style.display = 'block';
             }
             
             function updateChpv2PriceDisplay() {
@@ -2084,6 +2269,8 @@
                 kv.standardDiscount.className = "no-discount";
                 
                 kv.calculationTime.style.display = 'none';
+                var kvKpBtn = document.getElementById('kv-createKP');
+                if (kvKpBtn) kvKpBtn.style.display = 'none';
                 
                 kv.clientPVPercentInput.value = 20.1;
                 kv.clientPVRubInput.value = FIXED_MIN_PAYMENT;
@@ -2390,6 +2577,8 @@
                     }
                     
                     kv.apartmentFullDetails.style.display = 'block';
+                    var kvKpBtn = document.getElementById('kv-createKP');
+                    if (kvKpBtn) kvKpBtn.style.display = 'block';
                     kv.basePriceDisplay.textContent = formatMoney(kv.currentBasePrice);
                     
                     calculateKv();
@@ -2417,6 +2606,164 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadAllApartmentsData);
+
+        // ===========================
+        // Коммерческое предложение
+        // ===========================
+
+        function loadHtml2Canvas(callback) {
+            if (window.html2canvas) { callback(); return; }
+            var s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+            s.onload = callback;
+            s.onerror = function() {
+                alert('Не удалось загрузить библиотеку для сохранения картинки. Проверьте подключение к интернету.');
+            };
+            document.head.appendChild(s);
+        }
+
+        function openKPModal(prefix) {
+            var modal = document.getElementById('kp-modal');
+            document.getElementById('kp-preview').innerHTML = buildOfferHTML(prefix);
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeKPModal() {
+            document.getElementById('kp-modal').style.display = 'none';
+            document.body.style.overflow = '';
+            document.getElementById('kp-preview').innerHTML = '';
+        }
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeKPModal();
+        });
+
+        function buildOfferHTML(prefix) {
+            var now = new Date().toLocaleString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Информация о квартире
+            var aptFields = ['Complex', 'Section', 'Number', 'Rooms', 'Area', 'Floor', 'CompletionDate'];
+            var aptLines = aptFields.map(function(f) {
+                var el = document.getElementById(prefix + '-apartment' + f);
+                return el ? el.textContent.trim() : '';
+            }).filter(function(t) { return t; });
+
+            // URL плана квартиры — берём из уже существующей ссылки в DOM
+            var planDiv = document.getElementById(prefix + '-apartmentPlan');
+            var planLink = planDiv ? planDiv.querySelector('a.plan-button') : null;
+            var planUrl = planLink ? planLink.getAttribute('href') : '';
+
+            // Вспомогательная функция строки результата
+            function makeRow(label, id, containerId) {
+                if (containerId) {
+                    var c = document.getElementById(containerId);
+                    if (!c || c.style.display === 'none') return '';
+                }
+                var el = document.getElementById(id);
+                if (!el) return '';
+                var val = el.textContent.trim();
+                return '<div class="kp-data-row">' +
+                       '<span class="kp-data-label">' + label + '</span>' +
+                       '<span class="kp-data-value">' + val + '</span>' +
+                       '</div>';
+            }
+
+            var resultsHTML = '';
+
+            if (prefix === 'chpv2') {
+                resultsHTML += makeRow('Стоимость договора для ДДУ', 'chpv2-resultContractPrice');
+                resultsHTML += makeRow('Общий ПВ', 'chpv2-resultTotalPV');
+                resultsHTML += makeRow('Паритет ПВ', 'chpv2-resultCompanyPV');
+                resultsHTML += makeRow('Клиента ПВ', 'chpv2-resultClientPV');
+                resultsHTML += makeRow('Тело кредита', 'chpv2-resultLoanBody');
+                resultsHTML += makeRow('Комиссия банка', 'chpv2-resultBankCommission', 'chpv2-bankCommissionItem');
+                resultsHTML += makeRow('Процент комиссии', 'chpv2-resultBankCommissionPercent', 'chpv2-bankCommissionPercentItem');
+                resultsHTML += makeRow('Кэшбек (Winwin Bonus)', 'chpv2-resultWinwinTotal', 'chpv2-winwinTotalItem');
+                resultsHTML += makeRow('Кэшбек (Winwin Bonus)', 'chpv2-resultCashback', 'chpv2-winwinPlusCashbackItem');
+                resultsHTML += makeRow('Бонусы на ипотеку', 'chpv2-resultIpotekaBonus', 'chpv2-winwinPlusIpotekaItem');
+                resultsHTML += makeRow('Скидка на квартиру без учета ремонта', 'chpv2-resultDiscountWithoutRepair');
+            } else {
+                resultsHTML += '<div class="kp-mortgage-block-title">Семейная ипотека</div>';
+                resultsHTML += makeRow('КВ (Семейная ипотека)', 'kv-familyKV');
+                resultsHTML += makeRow('Клиента ПВ', 'kv-familyClientPV');
+                resultsHTML += makeRow('Стоимость договора для ДДУ', 'kv-familyContractPrice');
+                resultsHTML += makeRow('Тело кредита', 'kv-familyLoanBody');
+                resultsHTML += makeRow('Скидка без учета ремонта', 'kv-familyDiscount');
+                resultsHTML += '<div class="kp-mortgage-block-title">Стандартная ипотека</div>';
+                resultsHTML += makeRow('КВ (Стандартная ипотека)', 'kv-standardKV');
+                resultsHTML += makeRow('Клиента ПВ', 'kv-standardClientPV');
+                resultsHTML += makeRow('Стоимость договора для ДДУ', 'kv-standardContractPrice');
+                resultsHTML += makeRow('Тело кредита', 'kv-standardLoanBody');
+                resultsHTML += makeRow('Скидка без учета ремонта', 'kv-standardDiscount');
+            }
+
+                        var planBlock = planUrl
+                ? '<div class="kp-plan-block">' +
+                  '<div class="kp-section-title">План квартиры</div>' +
+                                    '<img src="' + planUrl + '" class="kp-plan-img" crossOrigin="anonymous" ' +
+                                    'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'" />' +
+                                    '<iframe src="' + planUrl + '" class="kp-plan-frame" style="display:none" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>' +
+                  '</div>'
+                : '';
+
+            return '<div class="kp-offer-header">' +
+                     '<div class="kp-offer-title">Предложение</div>' +
+                   '<div class="kp-offer-date">' + now + '</div>' +
+                   '</div>' +
+                     '<div class="kp-layout">' +
+                     '<div class="kp-left-column">' +
+                     '<div class="kp-section">' +
+                     '<div class="kp-section-title">Информация о квартире</div>' +
+                     aptLines.map(function(l) { return '<div class="kp-apt-row">' + l + '</div>'; }).join('') +
+                     '</div>' +
+                     '<div class="kp-section">' +
+                     '<div class="kp-section-title">Результаты расчета</div>' +
+                     resultsHTML +
+                     '</div>' +
+                     '</div>' +
+                     '<div class="kp-right-column">' +
+                     planBlock +
+                   '</div>' +
+                     '</div>';
+        }
+
+        function downloadKPAsPng() {
+            loadHtml2Canvas(function() {
+                var dialog = document.querySelector('.kp-dialog');
+                html2canvas(dialog, {
+                    useCORS: true,
+                    scale: 2,
+                    backgroundColor: '#f4f4f4',
+                    logging: false
+                }).then(function(canvas) {
+                    var link = document.createElement('a');
+                    link.download = 'КП_' + new Date().toISOString().slice(0, 10) + '.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(function() {
+                    alert('Не удалось создать изображение. Попробуйте ещё раз.');
+                });
+            });
+        }
+
     </script>
+
+    <!-- Модальное окно: Коммерческое предложение -->
+    <div id="kp-modal" class="kp-modal" style="display:none">
+        <div class="kp-dialog">
+            <div class="kp-toolbar">
+                <button onclick="closeKPModal()" class="kp-close-btn">&#10005; Закрыть</button>
+            </div>
+            <div id="kp-preview" class="kp-preview"></div>
+        </div>
+    </div>
 </body>
 </html>
