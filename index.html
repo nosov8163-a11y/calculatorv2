@@ -714,6 +714,31 @@
             color: #333;
         }
         .kp-apt-row:last-child { border-bottom: none; }
+        .kp-apt-data-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 7px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.93em;
+            gap: 12px;
+        }
+        .kp-apt-data-row:last-child { border-bottom: none; }
+        .kp-apt-label {
+            color: #555;
+            flex: 1;
+        }
+        .kp-apt-value {
+            font-weight: 700;
+            color: #111;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .kp-note-italic {
+            font-style: italic;
+            font-weight: 400;
+            color: #666;
+        }
         .kp-mortgage-block-title {
             font-size: 0.88em;
             font-weight: 700;
@@ -999,6 +1024,22 @@
                     <div id="chpv2-apartmentPlan"></div>
                 </div>
                 <button id="chpv2-createKP" class="kp-btn" style="display:none" onclick="openKPModal('chpv2')">&#128206; Отправить клиенту</button>
+                <div class="options-container">
+                    <div class="options-header" id="chpv2-paymentHeader">
+                        <span>Информация о платежах</span>
+                        <span class="options-icon">▼</span>
+                    </div>
+                    <div class="options-content collapsed" id="chpv2-paymentContent">
+                        <div class="form-group">
+                            <label for="chpv2-loanYears">Срок кредита (лет):</label>
+                            <input type="number" id="chpv2-loanYears" value="" min="1" max="50" step="1" placeholder="Например, 20">
+                        </div>
+                        <div class="form-group">
+                            <label for="chpv2-interestRate">Процентная ставка (%):</label>
+                            <input type="number" id="chpv2-interestRate" value="" min="0" max="100" step="0.1" placeholder="Например, 8.9">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1184,6 +1225,22 @@
                     <div id="kv-apartmentPlan"></div>
                 </div>
                 <button id="kv-createKP" class="kp-btn" style="display:none" onclick="openKPModal('kv')">&#128206; Отправить клиенту</button>
+                <div class="options-container">
+                    <div class="options-header" id="kv-paymentHeader">
+                        <span>Информация о платежах</span>
+                        <span class="options-icon">▼</span>
+                    </div>
+                    <div class="options-content collapsed" id="kv-paymentContent">
+                        <div class="form-group">
+                            <label for="kv-loanYears">Срок кредита (лет):</label>
+                            <input type="number" id="kv-loanYears" value="" min="1" max="50" step="1" placeholder="Например, 20">
+                        </div>
+                        <div class="form-group">
+                            <label for="kv-interestRate">Процентная ставка (%):</label>
+                            <input type="number" id="kv-interestRate" value="" min="0" max="100" step="0.1" placeholder="Например, 8.9">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1322,6 +1379,8 @@
                 apartmentFullDetails: document.getElementById('chpv2-apartmentFullDetails'),
                 optionsHeader: document.getElementById('chpv2-optionsHeader'),
                 optionsContent: document.getElementById('chpv2-optionsContent'),
+                paymentHeader: document.getElementById('chpv2-paymentHeader'),
+                paymentContent: document.getElementById('chpv2-paymentContent'),
                 calculationTime: document.getElementById('chpv2-calculationTime'),
                 timeValue: document.getElementById('chpv2-timeValue'),
                 
@@ -1397,6 +1456,18 @@
             function setupChpv2OptionsCollapsible() {
                 chpv2.optionsHeader.addEventListener('click', function() {
                     const isCollapsed = chpv2.optionsContent.classList.toggle('collapsed');
+                    const icon = this.querySelector('.options-icon');
+                    if (isCollapsed) {
+                        icon.classList.remove('rotated');
+                    } else {
+                        icon.classList.add('rotated');
+                    }
+                });
+            }
+
+            function setupChpv2PaymentCollapsible() {
+                chpv2.paymentHeader.addEventListener('click', function() {
+                    const isCollapsed = chpv2.paymentContent.classList.toggle('collapsed');
                     const icon = this.querySelector('.options-icon');
                     if (isCollapsed) {
                         icon.classList.remove('rotated');
@@ -2089,6 +2160,7 @@
 
             populateChpv2Complexes();
             setupChpv2OptionsCollapsible();
+            setupChpv2PaymentCollapsible();
         }
 
         // ==================== КАЛЬКУЛЯТОР КВ ====================
@@ -2112,6 +2184,8 @@
                 apartmentFullDetails: document.getElementById('kv-apartmentFullDetails'),
                 optionsHeader: document.getElementById('kv-optionsHeader'),
                 optionsContent: document.getElementById('kv-optionsContent'),
+                paymentHeader: document.getElementById('kv-paymentHeader'),
+                paymentContent: document.getElementById('kv-paymentContent'),
                 calculationTime: document.getElementById('kv-calculationTime'),
                 timeValue: document.getElementById('kv-timeValue'),
                 
@@ -2177,6 +2251,18 @@
             function setupKvOptionsCollapsible() {
                 kv.optionsHeader.addEventListener('click', function() {
                     const isCollapsed = kv.optionsContent.classList.toggle('collapsed');
+                    const icon = this.querySelector('.options-icon');
+                    if (isCollapsed) {
+                        icon.classList.remove('rotated');
+                    } else {
+                        icon.classList.add('rotated');
+                    }
+                });
+            }
+
+            function setupKvPaymentCollapsible() {
+                kv.paymentHeader.addEventListener('click', function() {
+                    const isCollapsed = kv.paymentContent.classList.toggle('collapsed');
                     const icon = this.querySelector('.options-icon');
                     if (isCollapsed) {
                         icon.classList.remove('rotated');
@@ -2603,6 +2689,7 @@
 
             populateKvComplexes();
             setupKvOptionsCollapsible();
+            setupKvPaymentCollapsible();
         }
 
         document.addEventListener('DOMContentLoaded', loadAllApartmentsData);
@@ -2676,6 +2763,65 @@
                        '</div>';
             }
 
+            function makeStaticRow(label, value) {
+                return '<div class="kp-data-row">' +
+                       '<span class="kp-data-label">' + label + '</span>' +
+                       '<span class="kp-data-value">' + value + '</span>' +
+                       '</div>';
+            }
+
+            function parseApartmentLine(line) {
+                if (!line) return null;
+                var idx = line.indexOf(':');
+                if (idx === -1) {
+                    return {
+                        label: line.trim(),
+                        value: ''
+                    };
+                }
+
+                return {
+                    label: line.slice(0, idx).trim(),
+                    value: line.slice(idx + 1).trim()
+                };
+            }
+
+            function renderApartmentRows(lines) {
+                return lines.map(function(line) {
+                    var parsed = parseApartmentLine(line);
+                    if (!parsed) return '';
+
+                    if (!parsed.value) {
+                        return '<div class="kp-apt-row">' + parsed.label + '</div>';
+                    }
+
+                    return '<div class="kp-apt-data-row">' +
+                           '<span class="kp-apt-label">' + parsed.label + '</span>' +
+                           '<span class="kp-apt-value">' + parsed.value + '</span>' +
+                           '</div>';
+                }).join('');
+            }
+
+            function parseMoneyText(text) {
+                if (!text) return 0;
+                var normalized = String(text).replace(/\s/g, '').replace(',', '.').replace(/[^0-9.-]/g, '');
+                var value = parseFloat(normalized);
+                return Number.isFinite(value) ? value : 0;
+            }
+
+            function calculateAnnuityPayment(loanAmount, annualRate, years) {
+                var months = Math.round(years * 12);
+                if (loanAmount <= 0 || annualRate < 0 || months <= 0) return 0;
+
+                var monthlyRate = annualRate / 100 / 12;
+                if (monthlyRate === 0) {
+                    return loanAmount / months;
+                }
+
+                var factor = Math.pow(1 + monthlyRate, months);
+                return loanAmount * (monthlyRate * factor) / (factor - 1);
+            }
+
             var resultsHTML = '';
 
             if (prefix === 'chpv2') {
@@ -2705,6 +2851,31 @@
                 resultsHTML += makeRow('Скидка без учета ремонта', 'kv-standardDiscount');
             }
 
+            var loanYearsInput = document.getElementById(prefix + '-loanYears');
+            var interestRateInput = document.getElementById(prefix + '-interestRate');
+            var loanYearsRaw = loanYearsInput ? loanYearsInput.value.trim() : '';
+            var interestRateRaw = interestRateInput ? interestRateInput.value.trim() : '';
+
+            if (loanYearsRaw !== '' && interestRateRaw !== '') {
+                var loanYears = parseFloat(loanYearsRaw) || 0;
+                var interestRate = parseFloat(interestRateRaw) || 0;
+
+                var loanBodyId = prefix === 'chpv2' ? 'chpv2-resultLoanBody' : 'kv-standardLoanBody';
+                var loanBodyElement = document.getElementById(loanBodyId);
+                var loanBody = loanBodyElement ? parseMoneyText(loanBodyElement.textContent) : 0;
+                if (prefix === 'kv' && loanBody <= 0) {
+                    var familyLoanBodyElement = document.getElementById('kv-familyLoanBody');
+                    loanBody = familyLoanBodyElement ? parseMoneyText(familyLoanBodyElement.textContent) : 0;
+                }
+
+                var monthlyPayment = calculateAnnuityPayment(loanBody, interestRate, loanYears);
+                var monthlyPaymentText = formatMoney(monthlyPayment);
+                var loanYearsText = Math.round(loanYears) + ' лет';
+
+                resultsHTML += makeStaticRow('Ежемесячный платеж <span class="kp-note-italic">(точная сумма расчитвается банком)</span>', monthlyPaymentText);
+                resultsHTML += makeStaticRow('Срок кредита', loanYearsText);
+            }
+
                         var planBlock = planUrl
                 ? '<div class="kp-plan-block">' +
                   '<div class="kp-section-title">План квартиры</div>' +
@@ -2722,7 +2893,7 @@
                      '<div class="kp-left-column">' +
                      '<div class="kp-section">' +
                      '<div class="kp-section-title">Информация о квартире</div>' +
-                     aptLines.map(function(l) { return '<div class="kp-apt-row">' + l + '</div>'; }).join('') +
+                     renderApartmentRows(aptLines) +
                      '</div>' +
                      '<div class="kp-section">' +
                      '<div class="kp-section-title">Результаты расчета</div>' +
