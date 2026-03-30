@@ -481,6 +481,7 @@
         }
         
         input[type="range"] {
+            appearance: none;
             -webkit-appearance: none;
             height: 10px;
             border-radius: 6px;
@@ -667,7 +668,7 @@
         .kp-offer-date { font-size: 0.88em; color: #888; }
         .kp-layout {
             display: grid;
-            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+            grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.35fr);
             gap: 24px;
             align-items: start;
         }
@@ -758,7 +759,7 @@
         }
         .kp-plan-frame {
             width: 100%;
-            min-height: 560px;
+            min-height: 840px;
             margin-top: 14px;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
@@ -2830,8 +2831,6 @@
                 resultsHTML += makeRow('Паритет ПВ', 'chpv2-resultCompanyPV');
                 resultsHTML += makeRow('Клиента ПВ', 'chpv2-resultClientPV');
                 resultsHTML += makeRow('Тело кредита', 'chpv2-resultLoanBody');
-                resultsHTML += makeRow('Комиссия банка', 'chpv2-resultBankCommission', 'chpv2-bankCommissionItem');
-                resultsHTML += makeRow('Процент комиссии', 'chpv2-resultBankCommissionPercent', 'chpv2-bankCommissionPercentItem');
                 resultsHTML += makeRow('Кэшбек (Winwin Bonus)', 'chpv2-resultWinwinTotal', 'chpv2-winwinTotalItem');
                 resultsHTML += makeRow('Кэшбек (Winwin Bonus)', 'chpv2-resultCashback', 'chpv2-winwinPlusCashbackItem');
                 resultsHTML += makeRow('Бонусы на ипотеку', 'chpv2-resultIpotekaBonus', 'chpv2-winwinPlusIpotekaItem');
