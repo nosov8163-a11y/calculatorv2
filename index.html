@@ -1225,6 +1225,13 @@
                     <div id="kv-apartmentCompletionDate"></div>
                     <div id="kv-apartmentPlan"></div>
                 </div>
+                <div class="form-group" style="margin-top: 12px;">
+                    <label for="kv-offerMortgageType">Тип ипотеки в предложении:</label>
+                    <select id="kv-offerMortgageType">
+                        <option value="family">Семейная ипотека</option>
+                        <option value="standard">Стандартная ипотека</option>
+                    </select>
+                </div>
                 <button id="kv-createKP" class="kp-btn" style="display:none" onclick="openKPModal('kv')">&#128206; Отправить клиенту</button>
                 <div class="options-container">
                     <div class="options-header" id="kv-paymentHeader">
@@ -2836,18 +2843,22 @@
                 resultsHTML += makeRow('Бонусы на ипотеку', 'chpv2-resultIpotekaBonus', 'chpv2-winwinPlusIpotekaItem');
                 resultsHTML += makeRow('Скидка на квартиру без учета ремонта', 'chpv2-resultDiscountWithoutRepair');
             } else {
-                resultsHTML += '<div class="kp-mortgage-block-title">Семейная ипотека</div>';
-                resultsHTML += makeRow('КВ (Семейная ипотека)', 'kv-familyKV');
-                resultsHTML += makeRow('Клиента ПВ', 'kv-familyClientPV');
-                resultsHTML += makeRow('Стоимость договора для ДДУ', 'kv-familyContractPrice');
-                resultsHTML += makeRow('Тело кредита', 'kv-familyLoanBody');
-                resultsHTML += makeRow('Скидка без учета ремонта', 'kv-familyDiscount');
-                resultsHTML += '<div class="kp-mortgage-block-title">Стандартная ипотека</div>';
-                resultsHTML += makeRow('КВ (Стандартная ипотека)', 'kv-standardKV');
-                resultsHTML += makeRow('Клиента ПВ', 'kv-standardClientPV');
-                resultsHTML += makeRow('Стоимость договора для ДДУ', 'kv-standardContractPrice');
-                resultsHTML += makeRow('Тело кредита', 'kv-standardLoanBody');
-                resultsHTML += makeRow('Скидка без учета ремонта', 'kv-standardDiscount');
+                var mortgageTypeEl = document.getElementById('kv-offerMortgageType');
+                var mortgageType = mortgageTypeEl ? mortgageTypeEl.value : 'family';
+
+                if (mortgageType === 'standard') {
+                    resultsHTML += '<div class="kp-mortgage-block-title">Стандартная ипотека</div>';
+                    resultsHTML += makeRow('Клиента ПВ', 'kv-standardClientPV');
+                    resultsHTML += makeRow('Стоимость договора для ДДУ', 'kv-standardContractPrice');
+                    resultsHTML += makeRow('Тело кредита', 'kv-standardLoanBody');
+                    resultsHTML += makeRow('Скидка без учета ремонта', 'kv-standardDiscount');
+                } else {
+                    resultsHTML += '<div class="kp-mortgage-block-title">Семейная ипотека</div>';
+                    resultsHTML += makeRow('Клиента ПВ', 'kv-familyClientPV');
+                    resultsHTML += makeRow('Стоимость договора для ДДУ', 'kv-familyContractPrice');
+                    resultsHTML += makeRow('Тело кредита', 'kv-familyLoanBody');
+                    resultsHTML += makeRow('Скидка без учета ремонта', 'kv-familyDiscount');
+                }
             }
 
             var loanYearsInput = document.getElementById(prefix + '-loanYears');
@@ -2859,13 +2870,14 @@
                 var loanYears = parseFloat(loanYearsRaw) || 0;
                 var interestRate = parseFloat(interestRateRaw) || 0;
 
-                var loanBodyId = prefix === 'chpv2' ? 'chpv2-resultLoanBody' : 'kv-standardLoanBody';
+                var loanBodyId = 'chpv2-resultLoanBody';
+                if (prefix === 'kv') {
+                    var selectedTypeEl = document.getElementById('kv-offerMortgageType');
+                    var selectedType = selectedTypeEl ? selectedTypeEl.value : 'family';
+                    loanBodyId = selectedType === 'standard' ? 'kv-standardLoanBody' : 'kv-familyLoanBody';
+                }
                 var loanBodyElement = document.getElementById(loanBodyId);
                 var loanBody = loanBodyElement ? parseMoneyText(loanBodyElement.textContent) : 0;
-                if (prefix === 'kv' && loanBody <= 0) {
-                    var familyLoanBodyElement = document.getElementById('kv-familyLoanBody');
-                    loanBody = familyLoanBodyElement ? parseMoneyText(familyLoanBodyElement.textContent) : 0;
-                }
 
                 var monthlyPayment = calculateAnnuityPayment(loanBody, interestRate, loanYears);
                 var monthlyPaymentText = formatMoney(monthlyPayment);
