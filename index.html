@@ -1985,7 +1985,9 @@
             }
 
             function populateChpv2Complexes() {
-                const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(Boolean))];
+                const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(function(name) {
+                    return Boolean(name) && String(name).trim().toUpperCase() !== 'УРАЛКВАРТАЛ';
+                }))];
                 chpv2.complexSelect.innerHTML = '<option value="">Выберите ЖК</option>';
                 complexes.forEach(complex => {
                     const option = document.createElement('option');
@@ -2541,7 +2543,9 @@
             }
 
             function populateKvComplexes() {
-                const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(Boolean))];
+                const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(function(name) {
+                    return Boolean(name) && String(name).trim().toUpperCase() !== 'УРАЛКВАРТАЛ';
+                }))];
                 kv.complexSelect.innerHTML = '<option value="">Выберите ЖК</option>';
                 complexes.forEach(complex => {
                     const option = document.createElement('option');
