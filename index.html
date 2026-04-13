@@ -1356,7 +1356,7 @@
                 case 'Тёплые кварталы':
                     return '4 квартал 2026';
                 case 'АСТРО':
-                    return '2 квартал 2026';
+                    return '1 квартал 2026';
                 case 'Счастье':
                     if (section && section.includes('ГП-4')) {
                         return '2 квартал 2026';
@@ -2292,26 +2292,68 @@
             const FIXED_MIN_PAYMENT = 0;
             let clientPVSource = 'percent';
 
+            function calculateKvContractPriceByPercent(clientPVPercent) {
+                const adjustedDiscountPrice = getAdjustedDiscountPrice();
+                const repairCost = parseInt(kv.repairCostInput.value) || 0;
+                const dduObjects = parseInt(kv.dduObjectsInput.value) || 0;
+                const kvSubsidyPercent = parseFloat(kv.kvSubsidyInput.value) || 0;
+
+                let contractPrice = adjustedDiscountPrice + repairCost + dduObjects;
+                let iterations = 0;
+                const maxIterations = 20;
+
+                while (iterations < maxIterations) {
+                    const clientPVRubCalc = contractPrice * (clientPVPercent / 100);
+                    const kvRub = (contractPrice - clientPVRubCalc) * (kvSubsidyPercent / 100);
+                    const newContractPrice = roundUpTo4Digits(adjustedDiscountPrice + repairCost + dduObjects + kvRub);
+
+                    if (Math.abs(newContractPrice - contractPrice) < 1) {
+                        break;
+                    }
+
+                    contractPrice = newContractPrice;
+                    iterations++;
+                }
+
+                return contractPrice;
+            }
+
+            function calculateKvPercentByClientPVRub(clientPVRub, initialPercent) {
+                let clientPVPercent = Number.isFinite(initialPercent) ? initialPercent : 20.1;
+
+                for (let i = 0; i < 20; i++) {
+                    const contractPrice = calculateKvContractPriceByPercent(clientPVPercent);
+                    if (contractPrice <= 0) {
+                        return 0;
+                    }
+
+                    const nextPercent = (clientPVRub / contractPrice) * 100;
+                    if (Math.abs(nextPercent - clientPVPercent) < 0.001) {
+                        clientPVPercent = nextPercent;
+                        break;
+                    }
+
+                    clientPVPercent = nextPercent;
+                }
+
+                return Math.max(0, clientPVPercent);
+            }
+
             function updateClientPVRubFromPercent() {
                 if (clientPVSource !== 'percent') return;
-                const familyContractPriceText = kv.familyContractPrice.textContent;
-                if (!familyContractPriceText || familyContractPriceText === '0 ₽') return;
-                const familyContractPrice = parseFloat(familyContractPriceText.replace(/[^\d]/g, ''));
                 const clientPVPercent = parseFloat(kv.clientPVPercentInput.value) || 0;
-                const clientPVRub = Math.round(familyContractPrice * clientPVPercent / 100);
+                const contractPrice = calculateKvContractPriceByPercent(clientPVPercent);
+                if (contractPrice <= 0) return;
+                const clientPVRub = Math.round(contractPrice * clientPVPercent / 100);
                 kv.clientPVRubInput.value = clientPVRub;
             }
 
             function updateClientPVPercentFromRub() {
                 if (clientPVSource !== 'rub') return;
-                const familyContractPriceText = kv.familyContractPrice.textContent;
-                if (!familyContractPriceText || familyContractPriceText === '0 ₽') return;
-                const familyContractPrice = parseFloat(familyContractPriceText.replace(/[^\d]/g, ''));
                 const clientPVRub = parseFloat(kv.clientPVRubInput.value) || 0;
-                if (familyContractPrice > 0) {
-                    const clientPVPercent = (clientPVRub / familyContractPrice) * 100;
-                    kv.clientPVPercentInput.value = clientPVPercent.toFixed(1);
-                }
+                const initialPercent = parseFloat(kv.clientPVPercentInput.value) || 20.1;
+                const clientPVPercent = calculateKvPercentByClientPVRub(clientPVRub, initialPercent);
+                kv.clientPVPercentInput.value = clientPVPercent.toFixed(1);
             }
 
             function setupKvOptionsCollapsible() {
@@ -2560,14 +2602,9 @@
                 if (clientPVSource === 'percent') {
                     clientPVPercent = parseFloat(kv.clientPVPercentInput.value) || 0;
                 } else {
-                    const familyContractPriceText = kv.familyContractPrice.textContent;
-                    if (!familyContractPriceText || familyContractPriceText === '0 ₽') {
-                        clientPVPercent = 20.1;
-                    } else {
-                        const familyContractPrice = parseFloat(familyContractPriceText.replace(/[^\d]/g, ''));
-                        const clientPVRub = parseInt(kv.clientPVRubInput.value) || 0;
-                        clientPVPercent = (clientPVRub / familyContractPrice) * 100;
-                    }
+                    const clientPVRub = parseInt(kv.clientPVRubInput.value) || 0;
+                    const initialPercent = parseFloat(kv.clientPVPercentInput.value) || 20.1;
+                    clientPVPercent = calculateKvPercentByClientPVRub(clientPVRub, initialPercent);
                 }
                 
                 let contractPrice = adjustedDiscountPrice + repairCost + dduObjects;
