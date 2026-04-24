@@ -1373,6 +1373,37 @@
             }
         }
 
+        const SPECIAL_APARTMENT_RULES = {
+            'АСТРО': {
+                'ГП-1': new Set(['27', '43', '168', '198', '179', '191', '93', '10', '248', '28'])
+            },
+            'Бодровский': {
+                'ГП-1': new Set(['37', '44', '106', '132', '154', '175', '240', '63', '156', '192'])
+            },
+            'ЧИСТЫЕ ПРУДЫ': {
+                'ГП-2': new Set(['10', '14', '18', '21', '44', '213']),
+                'ГП-1': new Set(['273', '274', '146', '313'])
+            }
+        };
+
+        function normalizeLookupValue(value) {
+            return String(value || '').trim().replace(/\s+/g, ' ');
+        }
+
+        function isSpecialApartmentForRule(complex, section, apartmentNumber) {
+            const normalizedComplex = normalizeLookupValue(complex);
+            const normalizedSection = normalizeLookupValue(section);
+            const normalizedApartmentNumber = normalizeLookupValue(apartmentNumber);
+
+            const complexRules = SPECIAL_APARTMENT_RULES[normalizedComplex];
+            if (!complexRules) return false;
+
+            const sectionRules = complexRules[normalizedSection];
+            if (!sectionRules) return false;
+
+            return sectionRules.has(normalizedApartmentNumber);
+        }
+
         // ==================== КАЛЬКУЛЯТОР ЧПВ 2.0 ====================
         function initializeChpv2Calculator() {
             const chpv2 = {
@@ -1385,6 +1416,7 @@
                 basePriceDisplay: document.getElementById('chpv2-basePriceDisplay'),
                 managerDiscount1Checkbox: document.getElementById('chpv2-managerDiscount1'),
                 managerDiscount2Checkbox: document.getElementById('chpv2-managerDiscount2'),
+                managerDiscountSection: document.getElementById('chpv2-managerDiscount1').closest('.option-section'),
                 managerDiscount2Group: document.getElementById('chpv2-managerDiscount2Group'),
                 managerDiscount1Label: document.getElementById('chpv2-managerDiscount1Label'),
                 managerDiscountDescription: document.getElementById('chpv2-managerDiscountDescription'),
@@ -1519,7 +1551,30 @@
             }
 
             function updateManagerDiscountVisibility() {
+                const isSpecialApartment = isSpecialApartmentForRule(
+                    chpv2.currentComplex,
+                    chpv2.currentSection,
+                    chpv2.currentApartmentNumber
+                );
                 const isAstroOrHappiness = chpv2.currentComplex === 'АСТРО' || chpv2.currentComplex === 'Счастье';
+
+                if (isSpecialApartment) {
+                    chpv2.managerDiscount1Checkbox.checked = false;
+                    chpv2.managerDiscount2Checkbox.checked = false;
+                    chpv2.managerDiscount1Checkbox.disabled = true;
+                    chpv2.managerDiscount2Checkbox.disabled = true;
+                    chpv2.managerDiscount2Group.style.display = 'none';
+                    if (chpv2.managerDiscountSection) {
+                        chpv2.managerDiscountSection.style.display = 'none';
+                    }
+                    return;
+                }
+
+                chpv2.managerDiscount1Checkbox.disabled = false;
+                chpv2.managerDiscount2Checkbox.disabled = false;
+                if (chpv2.managerDiscountSection) {
+                    chpv2.managerDiscountSection.style.display = 'block';
+                }
 
                 if (isAstroOrHappiness) {
                     chpv2.managerDiscount2Group.style.display = 'flex';
@@ -1534,6 +1589,20 @@
 
             // ADDED: обновлено условие для применения скидки риелтора в цене (добавлен проект Счастье с ГП-4)
             function getAdjustedDiscountPrice() {
+                const isSpecialApartment = isSpecialApartmentForRule(
+                    chpv2.currentComplex,
+                    chpv2.currentSection,
+                    chpv2.currentApartmentNumber
+                );
+
+                if (isSpecialApartment) {
+                    let adjustedSpecialPrice = chpv2.currentOriginalDiscountPrice + 100000;
+                    if (chpv2.realtorDiscountCheckbox.checked) {
+                        adjustedSpecialPrice -= 100000;
+                    }
+                    return adjustedSpecialPrice;
+                }
+
                 let adjustedPrice = chpv2.currentDiscountPrice;
                 
                 const isSpecialComplex = chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || 
@@ -2237,6 +2306,7 @@
                 basePriceDisplay: document.getElementById('kv-basePriceDisplay'),
                 managerDiscount1Checkbox: document.getElementById('kv-managerDiscount1'),
                 managerDiscount2Checkbox: document.getElementById('kv-managerDiscount2'),
+                managerDiscountSection: document.getElementById('kv-managerDiscount1').closest('.option-section'),
                 managerDiscount2Group: document.getElementById('kv-managerDiscount2Group'),
                 managerDiscount1Label: document.getElementById('kv-managerDiscount1Label'),
                 managerDiscountDescription: document.getElementById('kv-managerDiscountDescription'),
@@ -2279,6 +2349,7 @@
 
                 currentBasePrice: 0,
                 currentDiscountPrice: 0,
+                currentOriginalDiscountPrice: 0,
                 currentStatus: '',
                 currentComplex: '',
                 currentSection: '',
@@ -2400,7 +2471,30 @@
             }
 
             function updateManagerDiscountVisibility() {
+                const isSpecialApartment = isSpecialApartmentForRule(
+                    kv.currentComplex,
+                    kv.currentSection,
+                    kv.currentApartmentNumber
+                );
                 const isAstroOrHappiness = kv.currentComplex === 'АСТРО' || kv.currentComplex === 'Счастье';
+
+                if (isSpecialApartment) {
+                    kv.managerDiscount1Checkbox.checked = false;
+                    kv.managerDiscount2Checkbox.checked = false;
+                    kv.managerDiscount1Checkbox.disabled = true;
+                    kv.managerDiscount2Checkbox.disabled = true;
+                    kv.managerDiscount2Group.style.display = 'none';
+                    if (kv.managerDiscountSection) {
+                        kv.managerDiscountSection.style.display = 'none';
+                    }
+                    return;
+                }
+
+                kv.managerDiscount1Checkbox.disabled = false;
+                kv.managerDiscount2Checkbox.disabled = false;
+                if (kv.managerDiscountSection) {
+                    kv.managerDiscountSection.style.display = 'block';
+                }
 
                 if (isAstroOrHappiness) {
                     kv.managerDiscount2Group.style.display = 'flex';
@@ -2415,6 +2509,20 @@
 
             // ADDED: обновлено условие для применения скидки риелтора в цене (добавлен проект Счастье с ГП-4)
             function getAdjustedDiscountPrice() {
+                const isSpecialApartment = isSpecialApartmentForRule(
+                    kv.currentComplex,
+                    kv.currentSection,
+                    kv.currentApartmentNumber
+                );
+
+                if (isSpecialApartment) {
+                    let adjustedSpecialPrice = kv.currentOriginalDiscountPrice + 100000;
+                    if (kv.realtorDiscountCheckbox.checked) {
+                        adjustedSpecialPrice -= 100000;
+                    }
+                    return adjustedSpecialPrice;
+                }
+
                 let adjustedPrice = kv.currentDiscountPrice;
                 
                 const isSpecialComplex = kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || 
@@ -2469,6 +2577,7 @@
             function resetKvCalculation() {
                 kv.currentBasePrice = 0;
                 kv.currentDiscountPrice = 0;
+                kv.currentOriginalDiscountPrice = 0;
                 kv.currentStatus = '';
                 kv.currentFloor = '';
                 kv.basePriceDisplay.textContent = formatMoney(0);
@@ -2759,7 +2868,8 @@
 
                 if (selectedOption.value) {
                     kv.currentBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
-                    kv.currentDiscountPrice = parseInt(selectedOption.dataset.discountPrice) || 0;
+                    kv.currentOriginalDiscountPrice = parseInt(selectedOption.dataset.discountPrice) || 0;
+                    kv.currentDiscountPrice = kv.currentOriginalDiscountPrice;
                     kv.currentStatus = selectedOption.dataset.status || '';
                     kv.currentComplex = selectedOption.dataset.complex;
                     kv.currentSection = selectedOption.dataset.section;
