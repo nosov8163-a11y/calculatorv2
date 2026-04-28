@@ -1540,7 +1540,7 @@
                                          chpv2.currentComplex === 'Комсомольский';
                 const isSatisfactionGp4 = chpv2.currentComplex === 'Счастье' && 
                                           chpv2.currentSection && 
-                                          chpv2.currentSection.includes('ГП-4');
+                                          (chpv2.currentSection.includes('ГП-4') || chpv2.currentSection.includes('ГП-5'));
                 
                 if (isSpecialComplex || isSatisfactionGp4) {
                     chpv2.realtorDiscountSection.style.display = 'block';
@@ -1612,7 +1612,7 @@
                                          chpv2.currentComplex === 'Комсомольский';
                 const isSatisfactionGp4 = chpv2.currentComplex === 'Счастье' && 
                                           chpv2.currentSection && 
-                                          chpv2.currentSection.includes('ГП-4');
+                                          (chpv2.currentSection.includes('ГП-4') || chpv2.currentSection.includes('ГП-5'));
                 const isAstroOrHappiness = chpv2.currentComplex === 'АСТРО' || chpv2.currentComplex === 'Счастье';
 
                 if (isSpecialComplex || isSatisfactionGp4) {
@@ -2460,7 +2460,7 @@
                                          kv.currentComplex === 'Комсомольский';
                 const isSatisfactionGp4 = kv.currentComplex === 'Счастье' && 
                                           kv.currentSection && 
-                                          kv.currentSection.includes('ГП-4');
+                                          (kv.currentSection.includes('ГП-4') || kv.currentSection.includes('ГП-5'));
                 
                 if (isSpecialComplex || isSatisfactionGp4) {
                     kv.realtorDiscountSection.style.display = 'block';
@@ -2532,7 +2532,7 @@
                                          kv.currentComplex === 'Комсомольский';
                 const isSatisfactionGp4 = kv.currentComplex === 'Счастье' && 
                                           kv.currentSection && 
-                                          kv.currentSection.includes('ГП-4');
+                                          (kv.currentSection.includes('ГП-4') || kv.currentSection.includes('ГП-5'));
                 const isAstroOrHappiness = kv.currentComplex === 'АСТРО' || kv.currentComplex === 'Счастье';
 
                 if (isSpecialComplex || isSatisfactionGp4) {
