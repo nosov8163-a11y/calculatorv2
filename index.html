@@ -788,6 +788,8 @@
         <div class="calculator-buttons">
             <button class="calc-button active" data-calc="chpv2">Калькулятор ЧПВ 2.0</button>
             <button class="calc-button" data-calc="kv">Расчет КВ</button>
+            <button class="calc-button" data-calc="tranche">Транш</button>
+            <button class="calc-button" data-calc="installment">Рассрочка</button>
         </div>
     </div>
 
@@ -865,6 +867,13 @@
                             <div class="checkbox-group">
                                 <input type="checkbox" id="chpv2-realtorDiscount">
                                 <label for="chpv2-realtorDiscount">Применить скидку риелтора</label>
+                            </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="chpv2-etajiDiscount">
+                                <label for="chpv2-etajiDiscount">Скидка 1,5% для агентов ЭТАЖИ</label>
+                            </div>
+                            <div class="option-description">
+                                При включенной скидке отнимает 1,5% от стоимости квартиры дополнительно к купону
                             </div>
                             <div class="option-description">
                                 При включенной скидке риелтора цена уменьшается на 100,000 ₽
@@ -1153,6 +1162,13 @@
                                 <input type="checkbox" id="kv-realtorDiscount">
                                 <label for="kv-realtorDiscount">Применить скидку риелтора</label>
                             </div>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="kv-etajiDiscount">
+                                <label for="kv-etajiDiscount">Скидка 1,5% для агентов ЭТАЖИ</label>
+                            </div>
+                            <div class="option-description">
+                                При включенной скидке отнимает 1,5% от стоимости квартиры дополнительно к купону
+                            </div>
                             <div class="option-description">
                                 При включенной скидке риелтора цена уменьшается на 100,000 ₽
                             </div>
@@ -1262,7 +1278,31 @@
             </div>
         </div>
     </div>
+    <div id="tranche-calculator" class="calculator-section">
+        <div class="calculator-container">
+            <div class="calculator-form" style="flex: 1 1 100%; max-width: none; padding: 12px;">
+                <iframe
+                    title="Траншевый калькулятор"
+                    src="https://nosov8163-a11y.github.io/calculator_test2/"
+                    style="width:100%;height:1800px;border:0;border-radius:8px;background:#fff;display:block;"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+    </div>
 
+    <div id="installment-calculator" class="calculator-section">
+        <div class="calculator-container">
+            <div class="calculator-form" style="flex: 1 1 100%; max-width: none; padding: 12px;">
+                <iframe
+                    title="Калькулятор рассрочки"
+                    src="https://nosov8163-a11y.github.io/calculator_rasrochka2/"
+                    style="width:100%;height:1500px;border:0;border-radius:8px;background:#fff;display:block;"
+                    loading="lazy">
+                </iframe>
+            </div>
+        </div>
+    </div>
     <script>
         // Общие функции
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVMdD1qLq8N3hBj1OV-xVXz5T9wwOcDTPSa09j5Ty7kxm7YY1SErU5fXkoqWxO2zZ2/exec';
@@ -1421,6 +1461,7 @@
                 managerDiscount1Label: document.getElementById('chpv2-managerDiscount1Label'),
                 managerDiscountDescription: document.getElementById('chpv2-managerDiscountDescription'),
                 realtorDiscountCheckbox: document.getElementById('chpv2-realtorDiscount'),
+                etajiDiscountCheckbox: document.getElementById('chpv2-etajiDiscount'),
                 realtorDiscountSection: document.getElementById('chpv2-realtorDiscountSection'),
                 bankDiscountCheckbox: document.getElementById('chpv2-bankDiscount'),
                 commissionInputContainer: document.getElementById('chpv2-commissionInputContainer'),
@@ -1547,6 +1588,7 @@
                 } else {
                     chpv2.realtorDiscountSection.style.display = 'none';
                     chpv2.realtorDiscountCheckbox.checked = false;
+                    chpv2.etajiDiscountCheckbox.checked = false;
                 }
             }
 
@@ -1600,6 +1642,9 @@
                     if (chpv2.realtorDiscountCheckbox.checked) {
                         adjustedSpecialPrice -= 100000;
                     }
+                    if (chpv2.etajiDiscountCheckbox.checked) {
+                        adjustedSpecialPrice -= Math.round(chpv2.currentDiscountPrice * 0.015);
+                    }
                     return adjustedSpecialPrice;
                 }
 
@@ -1638,6 +1683,10 @@
                     if (!chpv2.managerDiscount1Checkbox.checked && !chpv2.managerDiscount2Checkbox.checked) {
                         adjustedPrice += 100000;
                     }
+                }
+
+                if (chpv2.etajiDiscountCheckbox.checked) {
+                    adjustedPrice -= Math.round(chpv2.currentDiscountPrice * 0.015);
                 }
                 
                 return adjustedPrice;
@@ -2256,6 +2305,11 @@
                 calculateChpv2();
             });
             
+            chpv2.etajiDiscountCheckbox.addEventListener('change', function() {
+                updateChpv2PriceDisplay();
+                calculateChpv2();
+            });
+            
             chpv2.bankDiscountCheckbox.addEventListener('change', function() {
                 if (this.checked) {
                     chpv2.commissionInputContainer.style.display = 'block';
@@ -2311,6 +2365,7 @@
                 managerDiscount1Label: document.getElementById('kv-managerDiscount1Label'),
                 managerDiscountDescription: document.getElementById('kv-managerDiscountDescription'),
                 realtorDiscountCheckbox: document.getElementById('kv-realtorDiscount'),
+                etajiDiscountCheckbox: document.getElementById('kv-etajiDiscount'),
                 realtorDiscountSection: document.getElementById('kv-realtorDiscountSection'),
                 repairCostInput: document.getElementById('kv-repairCost'),
                 dduObjectsInput: document.getElementById('kv-dduObjects'),
@@ -2467,6 +2522,7 @@
                 } else {
                     kv.realtorDiscountSection.style.display = 'none';
                     kv.realtorDiscountCheckbox.checked = false;
+                    kv.etajiDiscountCheckbox.checked = false;
                 }
             }
 
@@ -2520,6 +2576,9 @@
                     if (kv.realtorDiscountCheckbox.checked) {
                         adjustedSpecialPrice -= 100000;
                     }
+                    if (kv.etajiDiscountCheckbox.checked) {
+                        adjustedSpecialPrice -= Math.round(kv.currentDiscountPrice * 0.015);
+                    }
                     return adjustedSpecialPrice;
                 }
 
@@ -2558,6 +2617,9 @@
                     if (!kv.managerDiscount1Checkbox.checked && !kv.managerDiscount2Checkbox.checked) {
                         adjustedPrice += 100000;
                     }
+                }
+                if (kv.etajiDiscountCheckbox.checked) {
+                    adjustedPrice -= Math.round(kv.currentDiscountPrice * 0.015);
                 }
                 return adjustedPrice;
             }
@@ -2923,6 +2985,7 @@
             kv.managerDiscount1Checkbox.addEventListener('change', calculateKv);
             kv.managerDiscount2Checkbox.addEventListener('change', calculateKv);
             kv.realtorDiscountCheckbox.addEventListener('change', calculateKv);
+            kv.etajiDiscountCheckbox.addEventListener('change', calculateKv);
             kv.repairCostInput.addEventListener('input', calculateKv);
             kv.dduObjectsInput.addEventListener('input', calculateKv);
             kv.kvSubsidyInput.addEventListener('input', calculateKv);
@@ -3189,5 +3252,29 @@
             <div id="kp-preview" class="kp-preview"></div>
         </div>
     </div>
+    <script>
+        (function setupEmbeddedCalculators() {
+            const embeddedFrames = document.querySelectorAll('#tranche-calculator iframe, #installment-calculator iframe');
+            embeddedFrames.forEach((frame) => {
+                frame.addEventListener('load', () => {
+                    try {
+                        const doc = frame.contentDocument || frame.contentWindow.document;
+                        if (!doc || !doc.body) return;
+                        const resize = () => {
+                            const bodyHeight = doc.body.scrollHeight || 0;
+                            const htmlHeight = doc.documentElement ? doc.documentElement.scrollHeight : 0;
+                            frame.style.height = `${Math.max(bodyHeight, htmlHeight, 1200) + 20}px`;
+                        };
+                        resize();
+                        frame.contentWindow && frame.contentWindow.addEventListener('resize', resize);
+                    } catch (e) {
+                    }
+                });
+            });
+        })();
+    </script>
 </body>
 </html>
+
+
+
