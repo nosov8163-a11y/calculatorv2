@@ -850,7 +850,7 @@
                             <div class="option-title">Скидка менеджера</div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="chpv2-managerDiscount1">
-                                <label for="chpv2-managerDiscount1" id="chpv2-managerDiscount1Label">Применить скидку менеджера (100,000 ₽)</label>
+                                <label for="chpv2-managerDiscount1" id="chpv2-managerDiscount1Label">Применить скидку менеджера/агента (100,000 ₽)</label>
                             </div>
                             <div class="checkbox-group" id="chpv2-managerDiscount2Group" style="display: none;">
                                 <input type="checkbox" id="chpv2-managerDiscount2">
@@ -864,7 +864,7 @@
                         <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО, Комсомольский и для Счастье ГП-4) -->
                         <div class="option-section" id="chpv2-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
-                            <div class="checkbox-group">
+                            <div class="checkbox-group" id="chpv2-realtorDiscountGroup">
                                 <input type="checkbox" id="chpv2-realtorDiscount">
                                 <label for="chpv2-realtorDiscount">Применить скидку риелтора</label>
                             </div>
@@ -1144,7 +1144,7 @@
                             <div class="option-title">Скидка менеджера</div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="kv-managerDiscount1">
-                                <label for="kv-managerDiscount1" id="kv-managerDiscount1Label">Применить скидку менеджера (100,000 ₽)</label>
+                                <label for="kv-managerDiscount1" id="kv-managerDiscount1Label">Применить скидку менеджера/агента (100,000 ₽)</label>
                             </div>
                             <div class="checkbox-group" id="kv-managerDiscount2Group" style="display: none;">
                                 <input type="checkbox" id="kv-managerDiscount2">
@@ -1158,7 +1158,7 @@
                         <!-- Скидка риелтора (для ЧИСТЫЕ ПРУДЫ, Тёплые кварталы, Бодровский, АСТРО, Комсомольский и для Счастье ГП-4) -->
                         <div class="option-section" id="kv-realtorDiscountSection" style="display: none;">
                             <div class="option-title">Скидка риелтора</div>
-                            <div class="checkbox-group">
+                            <div class="checkbox-group" id="kv-realtorDiscountGroup">
                                 <input type="checkbox" id="kv-realtorDiscount">
                                 <label for="kv-realtorDiscount">Применить скидку риелтора</label>
                             </div>
@@ -1461,6 +1461,7 @@
                 managerDiscount1Label: document.getElementById('chpv2-managerDiscount1Label'),
                 managerDiscountDescription: document.getElementById('chpv2-managerDiscountDescription'),
                 realtorDiscountCheckbox: document.getElementById('chpv2-realtorDiscount'),
+                realtorDiscountGroup: document.getElementById('chpv2-realtorDiscountGroup'),
                 etajiDiscountCheckbox: document.getElementById('chpv2-etajiDiscount'),
                 realtorDiscountSection: document.getElementById('chpv2-realtorDiscountSection'),
                 bankDiscountCheckbox: document.getElementById('chpv2-bankDiscount'),
@@ -1578,15 +1579,26 @@
                                          chpv2.currentComplex === 'Тёплые кварталы' || 
                                          chpv2.currentComplex === 'Бодровский' || 
                                          chpv2.currentComplex === 'АСТРО' || 
-                                         chpv2.currentComplex === 'Комсомольский';
+                                         chpv2.currentComplex === 'Комсомольский' ||
+                                         chpv2.currentComplex === 'УРАЛКВАРТАЛ';
                 const isSatisfactionGp4 = chpv2.currentComplex === 'Счастье' && 
                                           chpv2.currentSection && 
                                           (chpv2.currentSection.includes('ГП-4') || chpv2.currentSection.includes('ГП-5'));
+                const isUralkvartal = chpv2.currentComplex === 'УРАЛКВАРТАЛ';
                 
                 if (isSpecialComplex || isSatisfactionGp4) {
                     chpv2.realtorDiscountSection.style.display = 'block';
+                    if (chpv2.realtorDiscountGroup) {
+                        chpv2.realtorDiscountGroup.style.display = isUralkvartal ? 'none' : 'flex';
+                    }
+                    if (isUralkvartal) {
+                        chpv2.realtorDiscountCheckbox.checked = false;
+                    }
                 } else {
                     chpv2.realtorDiscountSection.style.display = 'none';
+                    if (chpv2.realtorDiscountGroup) {
+                        chpv2.realtorDiscountGroup.style.display = 'flex';
+                    }
                     chpv2.realtorDiscountCheckbox.checked = false;
                     chpv2.etajiDiscountCheckbox.checked = false;
                 }
@@ -1625,7 +1637,7 @@
                 } else {
                     chpv2.managerDiscount2Group.style.display = 'none';
                     chpv2.managerDiscount2Checkbox.checked = false;
-                    chpv2.managerDiscount1Label.textContent = 'Применить скидку менеджера (100,000 ₽)';
+                    chpv2.managerDiscount1Label.textContent = 'Применить скидку менеджера/агента (100,000 ₽)';
                 }
             }
 
@@ -1654,7 +1666,8 @@
                                          chpv2.currentComplex === 'Тёплые кварталы' || 
                                          chpv2.currentComplex === 'Бодровский' || 
                                          chpv2.currentComplex === 'АСТРО' || 
-                                         chpv2.currentComplex === 'Комсомольский';
+                                         chpv2.currentComplex === 'Комсомольский' ||
+                                         chpv2.currentComplex === 'УРАЛКВАРТАЛ';
                 const isSatisfactionGp4 = chpv2.currentComplex === 'Счастье' && 
                                           chpv2.currentSection && 
                                           (chpv2.currentSection.includes('ГП-4') || chpv2.currentSection.includes('ГП-5'));
@@ -2143,7 +2156,7 @@
 
             function populateChpv2Complexes() {
                 const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(function(name) {
-                    return Boolean(name) && String(name).trim().toUpperCase() !== 'УРАЛКВАРТАЛ';
+                    return Boolean(name);
                 }))];
                 chpv2.complexSelect.innerHTML = '<option value="">Выберите ЖК</option>';
                 complexes.forEach(complex => {
@@ -2365,6 +2378,7 @@
                 managerDiscount1Label: document.getElementById('kv-managerDiscount1Label'),
                 managerDiscountDescription: document.getElementById('kv-managerDiscountDescription'),
                 realtorDiscountCheckbox: document.getElementById('kv-realtorDiscount'),
+                realtorDiscountGroup: document.getElementById('kv-realtorDiscountGroup'),
                 etajiDiscountCheckbox: document.getElementById('kv-etajiDiscount'),
                 realtorDiscountSection: document.getElementById('kv-realtorDiscountSection'),
                 repairCostInput: document.getElementById('kv-repairCost'),
@@ -2512,15 +2526,26 @@
                                          kv.currentComplex === 'Тёплые кварталы' || 
                                          kv.currentComplex === 'Бодровский' || 
                                          kv.currentComplex === 'АСТРО' || 
-                                         kv.currentComplex === 'Комсомольский';
+                                         kv.currentComplex === 'Комсомольский' ||
+                                         kv.currentComplex === 'УРАЛКВАРТАЛ';
                 const isSatisfactionGp4 = kv.currentComplex === 'Счастье' && 
                                           kv.currentSection && 
                                           (kv.currentSection.includes('ГП-4') || kv.currentSection.includes('ГП-5'));
+                const isUralkvartal = kv.currentComplex === 'УРАЛКВАРТАЛ';
                 
                 if (isSpecialComplex || isSatisfactionGp4) {
                     kv.realtorDiscountSection.style.display = 'block';
+                    if (kv.realtorDiscountGroup) {
+                        kv.realtorDiscountGroup.style.display = isUralkvartal ? 'none' : 'flex';
+                    }
+                    if (isUralkvartal) {
+                        kv.realtorDiscountCheckbox.checked = false;
+                    }
                 } else {
                     kv.realtorDiscountSection.style.display = 'none';
+                    if (kv.realtorDiscountGroup) {
+                        kv.realtorDiscountGroup.style.display = 'flex';
+                    }
                     kv.realtorDiscountCheckbox.checked = false;
                     kv.etajiDiscountCheckbox.checked = false;
                 }
@@ -2559,7 +2584,7 @@
                 } else {
                     kv.managerDiscount2Group.style.display = 'none';
                     kv.managerDiscount2Checkbox.checked = false;
-                    kv.managerDiscount1Label.textContent = 'Применить скидку менеджера (100,000 ₽)';
+                    kv.managerDiscount1Label.textContent = 'Применить скидку менеджера/агента (100,000 ₽)';
                 }
             }
 
@@ -2588,7 +2613,8 @@
                                          kv.currentComplex === 'Тёплые кварталы' || 
                                          kv.currentComplex === 'Бодровский' || 
                                          kv.currentComplex === 'АСТРО' || 
-                                         kv.currentComplex === 'Комсомольский';
+                                         kv.currentComplex === 'Комсомольский' ||
+                                         kv.currentComplex === 'УРАЛКВАРТАЛ';
                 const isSatisfactionGp4 = kv.currentComplex === 'Счастье' && 
                                           kv.currentSection && 
                                           (kv.currentSection.includes('ГП-4') || kv.currentSection.includes('ГП-5'));
@@ -2834,7 +2860,7 @@
 
             function populateKvComplexes() {
                 const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(function(name) {
-                    return Boolean(name) && String(name).trim().toUpperCase() !== 'УРАЛКВАРТАЛ';
+                    return Boolean(name);
                 }))];
                 kv.complexSelect.innerHTML = '<option value="">Выберите ЖК</option>';
                 complexes.forEach(complex => {
