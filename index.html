@@ -1316,6 +1316,14 @@
         }
 
         function getRoomTypeText(roomType) {
+            if (roomType === null || roomType === undefined || roomType === '') return 'Неизвестно';
+            if (typeof roomType === 'string') {
+                const normalized = roomType.trim();
+                if (normalized === '0') return 'Студия';
+                if (normalized !== '' && isNaN(Number(normalized))) return normalized;
+                roomType = Number(normalized);
+            }
+            if (roomType === 0) return 'Студия';
             const roomTypes = {
                 0: 'Студия',
                 1: '1-комнатная',
@@ -1466,6 +1474,14 @@
                 case 'Счастье':
                     if (section && section.includes('ГП-4')) {
                         return '2 квартал 2026';
+                    }
+                    if (section && section.includes('ГП-5')) {
+                        return '4 квартал 2027';
+                    }
+                    return 'не указана';
+                case 'УРАЛКВАРТАЛ':
+                    if (section && section.includes('ГП-9')) {
+                        return '4 квартал 2028';
                     }
                     return 'не указана';
                 case 'ЧИСТЫЕ ПРУДЫ':
@@ -1906,7 +1922,7 @@
                 chpv2.apartmentComplex.textContent = `Жилой комплекс: ${chpv2.currentComplex}`;
                 chpv2.apartmentSection.textContent = `Дом: ${chpv2.currentSection}`;
                 chpv2.apartmentNumber.textContent = `Квартира: ${chpv2.currentApartmentNumber}`;
-                chpv2.apartmentRooms.textContent = `Комнатность: ${getRoomTypeText(parseInt(chpv2.currentRoomType))}`;
+                chpv2.apartmentRooms.textContent = `Комнатность: ${getRoomTypeText(chpv2.currentRoomType)}`;
                 chpv2.apartmentArea.textContent = `Площадь: ${chpv2.currentArea} м²`;
                 chpv2.apartmentFloor.textContent = `Этаж: ${chpv2.currentFloor}`;
                 const completionDate = getCompletionDate(chpv2.currentComplex, chpv2.currentSection);
@@ -2290,7 +2306,7 @@
                             section: item["Название дома"],
                             type: item["Тип помещения"],
                             status: item["Статус"],
-                            roomType: item["Классическая комнатность"],
+                            roomType: item["Кол-во комнат"],
                             area: item["Площадь, м2"],
                             floor: item["Этаж"] || '',
                             planUrl: item["3D тур квартиры"]
@@ -3004,7 +3020,7 @@
                             section: item["Название дома"],
                             type: item["Тип помещения"],
                             status: item["Статус"],
-                            roomType: item["Классическая комнатность"],
+                            roomType: item["Кол-во комнат"],
                             area: item["Площадь, м2"],
                             floor: item["Этаж"] || '',
                             planUrl: item["3D тур квартиры"]
@@ -3076,7 +3092,7 @@
                     kv.apartmentComplex.textContent = `Жилой комплекс: ${kv.currentComplex}`;
                     kv.apartmentSection.textContent = `Дом: ${kv.currentSection}`;
                     kv.apartmentNumber.textContent = `Квартира: ${kv.currentApartmentNumber}`;
-                    kv.apartmentRooms.textContent = `Комнатность: ${getRoomTypeText(parseInt(kv.currentRoomType))}`;
+                    kv.apartmentRooms.textContent = `Комнатность: ${getRoomTypeText(kv.currentRoomType)}`;
                     kv.apartmentArea.textContent = `Площадь: ${kv.currentArea} м²`;
                     kv.apartmentFloor.textContent = `Этаж: ${kv.currentFloor}`;
                     const completionDate = getCompletionDate(kv.currentComplex, kv.currentSection);
