@@ -1306,6 +1306,10 @@
     <script>
         // Общие функции
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwVMdD1qLq8N3hBj1OV-xVXz5T9wwOcDTPSa09j5Ty7kxm7YY1SErU5fXkoqWxO2zZ2/exec';
+        const PB_DOMAIN = 'https://pb19554.profitbase.ru/api/v4/json';
+        const PB_API_KEY = 'app-6993e4ad54ccb';
+        let PB_ACCESS_TOKEN = '';
+        let PB_TOKEN_EXPIRES_AT = 0;
 
         function formatMoney(amount) {
             return new Intl.NumberFormat('ru-RU').format(Math.round(amount)) + ' ₽';
@@ -1319,6 +1323,68 @@
                 3: '3-комнатная'
             };
             return roomTypes[roomType] || 'Неизвестно';
+        }
+
+        async function getProfitbaseAccessToken() {
+            const now = Date.now();
+            if (PB_ACCESS_TOKEN && now < PB_TOKEN_EXPIRES_AT) {
+                return PB_ACCESS_TOKEN;
+            }
+            const response = await fetch(`${PB_DOMAIN}/authentication`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'api-app',
+                    credentials: { pb_api_key: PB_API_KEY }
+                })
+            });
+            if (!response.ok) {
+                throw new Error('Не удалось получить access_token Profitbase');
+            }
+            const payload = await response.json();
+            const token = payload?.access_token || payload?.data?.access_token || '';
+            const remaining = Number(payload?.remaining_time || payload?.data?.remaining_time || 0);
+            if (!token) {
+                throw new Error('Profitbase вернул пустой access_token');
+            }
+            PB_ACCESS_TOKEN = token;
+            // Обновляем заранее за минуту до окончания
+            PB_TOKEN_EXPIRES_AT = now + Math.max(0, (remaining - 60)) * 1000;
+            return PB_ACCESS_TOKEN;
+        }
+
+        async function getProfitbasePlanUrl(propertyId) {
+            if (!propertyId) return null;
+            try {
+                const accessToken = await getProfitbaseAccessToken();
+                const url = `${PB_DOMAIN}/plan?propertyId=${encodeURIComponent(propertyId)}&access_token=${encodeURIComponent(accessToken)}`;
+                const response = await fetch(url);
+                if (!response.ok) return null;
+                const payload = await response.json();
+                const list = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+                if (!list.length) return null;
+                const first = list[0] || {};
+                const image = first.image || {};
+                return image.big || image.preview || image.small || null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function isProfitbaseOnlyProject(complex, section) {
+            if (complex === 'УРАЛКВАРТАЛ') return true;
+            if (complex === 'Счастье' && section && section.includes('ГП-5')) return true;
+            return false;
+        }
+
+        function buildPlanHtml(planUrl, isLoading) {
+            const loadingLabel = isLoading
+                ? '<span style="margin-left:8px;color:#666;font-size:13px;">План загружается…</span>'
+                : '';
+            if (planUrl && planUrl.trim() !== '') {
+                return `<a href="${planUrl}" target="_blank" class="plan-button">План квартиры</a>${loadingLabel}`;
+            }
+            return loadingLabel;
         }
 
         // Функция для форматирования даты и времени
@@ -1536,7 +1602,8 @@
                 currentRoomType: '',
                 currentArea: '',
                 currentFloor: '',
-                currentPlanUrl: ''
+                currentPlanUrl: '',
+                isPlanLoading: false
             };
 
             const increasedPriceComplexes = ['Бодровский', 'Комсомольский', 'ЧИСТЫЕ ПРУДЫ'];
@@ -1845,11 +1912,7 @@
                 const completionDate = getCompletionDate(chpv2.currentComplex, chpv2.currentSection);
                 chpv2.apartmentCompletionDate.textContent = `Дата ввода: ${completionDate}`;
                 
-                if (chpv2.currentPlanUrl && chpv2.currentPlanUrl.trim() !== '') {
-                    chpv2.apartmentPlan.innerHTML = `<a href="${chpv2.currentPlanUrl}" target="_blank" class="plan-button">План квартиры</a>`;
-                } else {
-                    chpv2.apartmentPlan.innerHTML = '';
-                }
+                chpv2.apartmentPlan.innerHTML = buildPlanHtml(chpv2.currentPlanUrl, chpv2.isPlanLoading);
                 
                 chpv2.apartmentFullDetails.style.display = 'block';
                 var kpBtn = document.getElementById('chpv2-createKP');
@@ -2220,6 +2283,7 @@
                         )
                         .map(item => ({
                             number: item["Номер помещения"],
+                            propertyId: item["ID помещения"],
                             basePrice: item["Цена"],
                             discountPrice: item["Цена продажи"],
                             complex: item["Название ЖК"],
@@ -2238,6 +2302,7 @@
                         option.value = apartment.number;
                         option.textContent = `Квартира ${apartment.number}`;
                         option.dataset.basePrice = apartment.basePrice;
+                        option.dataset.propertyId = apartment.propertyId || '';
                         option.dataset.discountPrice = apartment.discountPrice;
                         option.dataset.complex = apartment.complex;
                         option.dataset.section = apartment.section;
@@ -2253,7 +2318,7 @@
                 }
             });
 
-            chpv2.apartmentSelect.addEventListener('change', function() {
+            chpv2.apartmentSelect.addEventListener('change', async function() {
                 const selectedOption = this.options[this.selectedIndex];
                 chpv2.selectedApartmentInfo.style.display = 'none';
                 chpv2.soldNotice.style.display = 'none';
@@ -2272,11 +2337,15 @@
                     chpv2.currentRoomType = selectedOption.dataset.roomType;
                     chpv2.currentArea = selectedOption.dataset.area;
                     const chpv2Area = parseFloat(chpv2.currentArea) || 0;
-                    const chpv2RepairTotal = Math.round(chpv2Area * 29000);
+                    const chpv2RepairRate = chpv2.currentComplex === 'АСТРО' ? 20000 : 29000;
+                    const chpv2RepairTotal = Math.round(chpv2Area * chpv2RepairRate);
                     document.getElementById('chpv2-repairCostDescription').textContent =
-                        `Расчёт цены ремонта: 29 000 р. за 1 м² × ${chpv2Area} м² = ${chpv2RepairTotal.toLocaleString('ru-RU')} р.`;
+                        `Расчёт цены ремонта: ${chpv2RepairRate.toLocaleString('ru-RU')} р. за 1 м² × ${chpv2Area} м² = ${chpv2RepairTotal.toLocaleString('ru-RU')} р.`;
                     chpv2.currentFloor = selectedOption.dataset.floor || '';
-                    chpv2.currentPlanUrl = selectedOption.dataset.planUrl;
+                    const chpv2FallbackPlanUrl = selectedOption.dataset.planUrl || '';
+                    const chpv2ProfitbaseOnly = isProfitbaseOnlyProject(chpv2.currentComplex, chpv2.currentSection);
+                    chpv2.currentPlanUrl = chpv2ProfitbaseOnly ? '' : chpv2FallbackPlanUrl;
+                    chpv2.isPlanLoading = true;
 
                     chpv2.currentBasePrice = chpv2.currentOriginalBasePrice;
                     
@@ -2298,6 +2367,17 @@
                     `;
                     chpv2.selectedApartmentInfo.style.display = 'block';
 
+                    updateChpv2ApartmentFullDetails();
+                    const chpv2PropertyId = selectedOption.dataset.propertyId;
+                    const chpv2ProfitbasePlan = await getProfitbasePlanUrl(chpv2PropertyId);
+                    if (chpv2ProfitbasePlan) {
+                        chpv2.currentPlanUrl = chpv2ProfitbasePlan;
+                    } else if (chpv2ProfitbaseOnly) {
+                        chpv2.currentPlanUrl = '';
+                    } else {
+                        chpv2.currentPlanUrl = chpv2FallbackPlanUrl;
+                    }
+                    chpv2.isPlanLoading = false;
                     updateChpv2ApartmentFullDetails();
                     updateChpv2PriceDisplay();
                     updateRealtorDiscountVisibility();
@@ -2429,7 +2509,8 @@
                 currentRoomType: '',
                 currentArea: '',
                 currentFloor: '',
-                currentPlanUrl: ''
+                currentPlanUrl: '',
+                isPlanLoading: false
             };
 
             const FIXED_MIN_PAYMENT = 0;
@@ -2916,6 +2997,7 @@
                         .filter(item => item["Название ЖК"] === complex && item["Название дома"] === section)
                         .map(item => ({
                             number: item["Номер помещения"],
+                            propertyId: item["ID помещения"],
                             basePrice: item["Цена"],
                             discountPrice: item["Цена продажи"],
                             complex: item["Название ЖК"],
@@ -2934,6 +3016,7 @@
                         option.value = apartment.number;
                         option.textContent = `Квартира ${apartment.number}`;
                         option.dataset.basePrice = apartment.basePrice;
+                        option.dataset.propertyId = apartment.propertyId || '';
                         option.dataset.discountPrice = apartment.discountPrice;
                         option.dataset.complex = apartment.complex;
                         option.dataset.section = apartment.section;
@@ -2948,7 +3031,7 @@
                 }
             });
 
-            kv.apartmentSelect.addEventListener('change', function() {
+            kv.apartmentSelect.addEventListener('change', async function() {
                 const selectedOption = this.options[this.selectedIndex];
                 kv.selectedApartmentInfo.style.display = 'none';
                 kv.soldNotice.style.display = 'none';
@@ -2968,11 +3051,15 @@
                     kv.currentRoomType = selectedOption.dataset.roomType;
                     kv.currentArea = selectedOption.dataset.area;
                     const kvArea = parseFloat(kv.currentArea) || 0;
-                    const kvRepairTotal = Math.round(kvArea * 29000);
+                    const kvRepairRate = kv.currentComplex === 'АСТРО' ? 20000 : 29000;
+                    const kvRepairTotal = Math.round(kvArea * kvRepairRate);
                     document.getElementById('kv-repairCostDescription').textContent =
-                        `Расчёт цены ремонта: 29 000 р. за 1 м² × ${kvArea} м² = ${kvRepairTotal.toLocaleString('ru-RU')} р.`;
+                        `Расчёт цены ремонта: ${kvRepairRate.toLocaleString('ru-RU')} р. за 1 м² × ${kvArea} м² = ${kvRepairTotal.toLocaleString('ru-RU')} р.`;
                     kv.currentFloor = selectedOption.dataset.floor || '';
-                    kv.currentPlanUrl = selectedOption.dataset.planUrl;
+                    const kvFallbackPlanUrl = selectedOption.dataset.planUrl || '';
+                    const kvProfitbaseOnly = isProfitbaseOnlyProject(kv.currentComplex, kv.currentSection);
+                    kv.currentPlanUrl = kvProfitbaseOnly ? '' : kvFallbackPlanUrl;
+                    kv.isPlanLoading = true;
 
                     if (kv.currentStatus === "Продано") {
                         kv.soldNotice.style.display = 'block';
@@ -2995,13 +3082,20 @@
                     const completionDate = getCompletionDate(kv.currentComplex, kv.currentSection);
                     kv.apartmentCompletionDate.textContent = `Дата ввода: ${completionDate}`;
                     
-                    if (kv.currentPlanUrl && kv.currentPlanUrl.trim() !== '') {
-                        kv.apartmentPlan.innerHTML = `<a href="${kv.currentPlanUrl}" target="_blank" class="plan-button">План квартиры</a>`;
-                    } else {
-                        kv.apartmentPlan.innerHTML = '';
-                    }
+                    kv.apartmentPlan.innerHTML = buildPlanHtml(kv.currentPlanUrl, kv.isPlanLoading);
                     
                     kv.apartmentFullDetails.style.display = 'block';
+                    const kvPropertyId = selectedOption.dataset.propertyId;
+                    const kvProfitbasePlan = await getProfitbasePlanUrl(kvPropertyId);
+                    if (kvProfitbasePlan) {
+                        kv.currentPlanUrl = kvProfitbasePlan;
+                    } else if (kvProfitbaseOnly) {
+                        kv.currentPlanUrl = '';
+                    } else {
+                        kv.currentPlanUrl = kvFallbackPlanUrl;
+                    }
+                    kv.isPlanLoading = false;
+                    kv.apartmentPlan.innerHTML = buildPlanHtml(kv.currentPlanUrl, kv.isPlanLoading);
                     var kvKpBtn = document.getElementById('kv-createKP');
                     if (kvKpBtn) kvKpBtn.style.display = 'block';
                     kv.basePriceDisplay.textContent = formatMoney(kv.currentBasePrice);
@@ -3221,14 +3315,17 @@
                 resultsHTML += makeStaticRow('Срок кредита', loanYearsText);
             }
 
-                        var planBlock = planUrl
+            var planBlock = planUrl
                 ? '<div class="kp-plan-block">' +
                   '<div class="kp-section-title">План квартиры</div>' +
                                     '<img src="' + planUrl + '" class="kp-plan-img" crossOrigin="anonymous" ' +
                                     'onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'block\'" />' +
                                     '<iframe src="' + planUrl + '" class="kp-plan-frame" style="display:none" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>' +
                   '</div>'
-                : '';
+                : '<div class="kp-plan-block">' +
+                  '<div class="kp-section-title">План квартиры</div>' +
+                  '<div style="padding:12px;border:1px dashed #ccc;border-radius:8px;color:#666;background:#fafafa;">Планировка пока не загружена</div>' +
+                  '</div>';
 
             return '<div class="kp-offer-header">' +
                      '<div class="kp-offer-title">Предложение</div>' +
