@@ -846,7 +846,7 @@
                     </div>
                     <div class="options-content" id="chpv2-optionsContent">
                         <!-- Скидка менеджера -->
-                        <div class="option-section">
+                        <div class="option-section" style="display: none;">
                             <div class="option-title">Скидка менеджера</div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="chpv2-managerDiscount1">
@@ -866,13 +866,13 @@
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group" id="chpv2-realtorDiscountGroup">
                                 <input type="checkbox" id="chpv2-realtorDiscount">
-                                <label for="chpv2-realtorDiscount">Применить скидку риелтора</label>
+                                <label for="chpv2-realtorDiscount">Применить скидку риелтора (100,000 ₽)</label>
                             </div>
-                            <div class="checkbox-group">
+                            <div class="checkbox-group" style="display: none;">
                                 <input type="checkbox" id="chpv2-etajiDiscount">
                                 <label for="chpv2-etajiDiscount">Скидка 1,5% для агентов ЭТАЖИ</label>
                             </div>
-                            <div class="option-description">
+                            <div class="option-description" style="display: none;">
                                 При включенной скидке отнимает 1,5% от стоимости квартиры дополнительно к купону
                             </div>
                             <div class="option-description">
@@ -1140,7 +1140,7 @@
                     </div>
                     <div class="options-content collapsed" id="kv-optionsContent">
                         <!-- Чекбокс скидки менеджера -->
-                        <div class="option-section">
+                        <div class="option-section" style="display: none;">
                             <div class="option-title">Скидка менеджера</div>
                             <div class="checkbox-group">
                                 <input type="checkbox" id="kv-managerDiscount1">
@@ -1160,13 +1160,13 @@
                             <div class="option-title">Скидка риелтора</div>
                             <div class="checkbox-group" id="kv-realtorDiscountGroup">
                                 <input type="checkbox" id="kv-realtorDiscount">
-                                <label for="kv-realtorDiscount">Применить скидку риелтора</label>
+                                <label for="kv-realtorDiscount">Применить скидку риелтора (100,000 ₽)</label>
                             </div>
-                            <div class="checkbox-group">
+                            <div class="checkbox-group" style="display: none;">
                                 <input type="checkbox" id="kv-etajiDiscount">
                                 <label for="kv-etajiDiscount">Скидка 1,5% для агентов ЭТАЖИ</label>
                             </div>
-                            <div class="option-description">
+                            <div class="option-description" style="display: none;">
                                 При включенной скидке отнимает 1,5% от стоимости квартиры дополнительно к купону
                             </div>
                             <div class="option-description">
@@ -1622,14 +1622,8 @@
                 isPlanLoading: false
             };
 
-            const increasedPriceComplexes = ['Бодровский', 'Комсомольский', 'ЧИСТЫЕ ПРУДЫ'];
-            const PRICE_INCREASE_RATE = 0.03;
             const FIXED_MIN_PAYMENT = 0;
             const COMPANY_PV_LIMIT = 1200000; // лимит Паритет ПВ
-
-            function isPriceIncreasedComplex(complex) {
-                return increasedPriceComplexes.includes(complex);
-            }
 
             function calculateMinClientPayment() {
                 return FIXED_MIN_PAYMENT;
@@ -1691,39 +1685,15 @@
             }
 
             function updateManagerDiscountVisibility() {
-                const isSpecialApartment = isSpecialApartmentForRule(
-                    chpv2.currentComplex,
-                    chpv2.currentSection,
-                    chpv2.currentApartmentNumber
-                );
-                const isAstroOrHappiness = chpv2.currentComplex === 'АСТРО' || chpv2.currentComplex === 'Счастье';
-
-                if (isSpecialApartment) {
-                    chpv2.managerDiscount1Checkbox.checked = false;
-                    chpv2.managerDiscount2Checkbox.checked = false;
-                    chpv2.managerDiscount1Checkbox.disabled = true;
-                    chpv2.managerDiscount2Checkbox.disabled = true;
-                    chpv2.managerDiscount2Group.style.display = 'none';
-                    if (chpv2.managerDiscountSection) {
-                        chpv2.managerDiscountSection.style.display = 'none';
-                    }
-                    return;
-                }
-
-                chpv2.managerDiscount1Checkbox.disabled = false;
-                chpv2.managerDiscount2Checkbox.disabled = false;
                 if (chpv2.managerDiscountSection) {
-                    chpv2.managerDiscountSection.style.display = 'block';
+                    chpv2.managerDiscountSection.style.display = 'none';
                 }
-
-                if (isAstroOrHappiness) {
-                    chpv2.managerDiscount2Group.style.display = 'flex';
-                    chpv2.managerDiscount1Label.textContent = 'Скидка менеджера #1 (50,000 ₽)';
-                    chpv2.managerDiscountDescription.style.display = 'none';
-                } else {
+                chpv2.managerDiscount1Checkbox.checked = false;
+                chpv2.managerDiscount2Checkbox.checked = false;
+                chpv2.managerDiscount1Checkbox.disabled = true;
+                chpv2.managerDiscount2Checkbox.disabled = true;
+                if (chpv2.managerDiscount2Group) {
                     chpv2.managerDiscount2Group.style.display = 'none';
-                    chpv2.managerDiscount2Checkbox.checked = false;
-                    chpv2.managerDiscount1Label.textContent = 'Применить скидку менеджера/агента (100,000 ₽)';
                 }
             }
 
@@ -1739,9 +1709,6 @@
                     let adjustedSpecialPrice = chpv2.currentOriginalDiscountPrice + 100000;
                     if (chpv2.realtorDiscountCheckbox.checked) {
                         adjustedSpecialPrice -= 100000;
-                    }
-                    if (chpv2.etajiDiscountCheckbox.checked) {
-                        adjustedSpecialPrice -= Math.round(chpv2.currentDiscountPrice * 0.015);
                     }
                     return adjustedSpecialPrice;
                 }
@@ -1784,10 +1751,6 @@
                     }
                 }
 
-                if (chpv2.etajiDiscountCheckbox.checked) {
-                    adjustedPrice -= Math.round(chpv2.currentDiscountPrice * 0.015);
-                }
-                
                 return adjustedPrice;
             }
 
@@ -2364,12 +2327,7 @@
                     chpv2.isPlanLoading = true;
 
                     chpv2.currentBasePrice = chpv2.currentOriginalBasePrice;
-                    
-                    if (isPriceIncreasedComplex(chpv2.currentComplex)) {
-                        chpv2.currentDiscountPrice = Math.round(chpv2.currentOriginalDiscountPrice * (1 + PRICE_INCREASE_RATE));
-                    } else {
-                        chpv2.currentDiscountPrice = chpv2.currentOriginalDiscountPrice;
-                    }
+                    chpv2.currentDiscountPrice = chpv2.currentOriginalDiscountPrice;
 
                     if (chpv2.currentStatus === "Продано") {
                         chpv2.soldNotice.style.display = 'block';
@@ -2652,39 +2610,15 @@
             }
 
             function updateManagerDiscountVisibility() {
-                const isSpecialApartment = isSpecialApartmentForRule(
-                    kv.currentComplex,
-                    kv.currentSection,
-                    kv.currentApartmentNumber
-                );
-                const isAstroOrHappiness = kv.currentComplex === 'АСТРО' || kv.currentComplex === 'Счастье';
-
-                if (isSpecialApartment) {
-                    kv.managerDiscount1Checkbox.checked = false;
-                    kv.managerDiscount2Checkbox.checked = false;
-                    kv.managerDiscount1Checkbox.disabled = true;
-                    kv.managerDiscount2Checkbox.disabled = true;
-                    kv.managerDiscount2Group.style.display = 'none';
-                    if (kv.managerDiscountSection) {
-                        kv.managerDiscountSection.style.display = 'none';
-                    }
-                    return;
-                }
-
-                kv.managerDiscount1Checkbox.disabled = false;
-                kv.managerDiscount2Checkbox.disabled = false;
                 if (kv.managerDiscountSection) {
-                    kv.managerDiscountSection.style.display = 'block';
+                    kv.managerDiscountSection.style.display = 'none';
                 }
-
-                if (isAstroOrHappiness) {
-                    kv.managerDiscount2Group.style.display = 'flex';
-                    kv.managerDiscount1Label.textContent = 'Скидка менеджера #1 (50,000 ₽)';
-                    kv.managerDiscountDescription.style.display = 'none';
-                } else {
+                kv.managerDiscount1Checkbox.checked = false;
+                kv.managerDiscount2Checkbox.checked = false;
+                kv.managerDiscount1Checkbox.disabled = true;
+                kv.managerDiscount2Checkbox.disabled = true;
+                if (kv.managerDiscount2Group) {
                     kv.managerDiscount2Group.style.display = 'none';
-                    kv.managerDiscount2Checkbox.checked = false;
-                    kv.managerDiscount1Label.textContent = 'Применить скидку менеджера/агента (100,000 ₽)';
                 }
             }
 
@@ -2700,9 +2634,6 @@
                     let adjustedSpecialPrice = kv.currentOriginalDiscountPrice + 100000;
                     if (kv.realtorDiscountCheckbox.checked) {
                         adjustedSpecialPrice -= 100000;
-                    }
-                    if (kv.etajiDiscountCheckbox.checked) {
-                        adjustedSpecialPrice -= Math.round(kv.currentDiscountPrice * 0.015);
                     }
                     return adjustedSpecialPrice;
                 }
@@ -2743,9 +2674,6 @@
                     if (!kv.managerDiscount1Checkbox.checked && !kv.managerDiscount2Checkbox.checked) {
                         adjustedPrice += 100000;
                     }
-                }
-                if (kv.etajiDiscountCheckbox.checked) {
-                    adjustedPrice -= Math.round(kv.currentDiscountPrice * 0.015);
                 }
                 return adjustedPrice;
             }
