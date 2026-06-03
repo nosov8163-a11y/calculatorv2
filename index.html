@@ -1697,61 +1697,13 @@
                 }
             }
 
-            // ADDED: обновлено условие для применения скидки риелтора в цене (добавлен проект Счастье с ГП-4)
             function getAdjustedDiscountPrice() {
-                const isSpecialApartment = isSpecialApartmentForRule(
-                    chpv2.currentComplex,
-                    chpv2.currentSection,
-                    chpv2.currentApartmentNumber
-                );
-
-                if (isSpecialApartment) {
-                    let adjustedSpecialPrice = chpv2.currentOriginalDiscountPrice + 100000;
-                    if (chpv2.realtorDiscountCheckbox.checked) {
-                        adjustedSpecialPrice -= 100000;
-                    }
-                    return adjustedSpecialPrice;
+                if (chpv2.realtorDiscountCheckbox.checked) {
+                    // При включенной скидке риелтора — использовать цену продажи из данных (нижняя цена)
+                    return chpv2.currentOriginalDiscountPrice;
                 }
-
-                let adjustedPrice = chpv2.currentDiscountPrice;
-                
-                const isSpecialComplex = chpv2.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || 
-                                         chpv2.currentComplex === 'Тёплые кварталы' || 
-                                         chpv2.currentComplex === 'Бодровский' || 
-                                         chpv2.currentComplex === 'АСТРО' || 
-                                         chpv2.currentComplex === 'Комсомольский' ||
-                                         chpv2.currentComplex === 'УРАЛКВАРТАЛ';
-                const isSatisfactionGp4 = chpv2.currentComplex === 'Счастье' && 
-                                          chpv2.currentSection && 
-                                          (chpv2.currentSection.includes('ГП-4') || chpv2.currentSection.includes('ГП-5'));
-                const isAstroOrHappiness = chpv2.currentComplex === 'АСТРО' || chpv2.currentComplex === 'Счастье';
-
-                if (isSpecialComplex || isSatisfactionGp4) {
-                    adjustedPrice += 200000;
-                    
-                    // Для АСТРО и Счастье: две скидки по 50,000 ₽ каждая
-                    if (isAstroOrHappiness) {
-                        let managerDiscount = 0;
-                        if (chpv2.managerDiscount1Checkbox.checked) managerDiscount += 50000;
-                        if (chpv2.managerDiscount2Checkbox.checked) managerDiscount += 50000;
-                        adjustedPrice -= managerDiscount;
-                    } else {
-                        // Для других: одна скидка на 100,000 ₽
-                        if (chpv2.managerDiscount1Checkbox.checked) {
-                            adjustedPrice -= 100000;
-                        }
-                    }
-                    
-                    if (chpv2.realtorDiscountCheckbox.checked) {
-                        adjustedPrice -= 100000;
-                    }
-                } else {
-                    if (!chpv2.managerDiscount1Checkbox.checked && !chpv2.managerDiscount2Checkbox.checked) {
-                        adjustedPrice += 100000;
-                    }
-                }
-
-                return adjustedPrice;
+                // Если галочка НЕ включена — использовать нижнюю цену + 100000
+                return chpv2.currentOriginalDiscountPrice + 100000;
             }
 
             function getBankCommissionRate() {
@@ -2622,60 +2574,13 @@
                 }
             }
 
-            // ADDED: обновлено условие для применения скидки риелтора в цене (добавлен проект Счастье с ГП-4)
             function getAdjustedDiscountPrice() {
-                const isSpecialApartment = isSpecialApartmentForRule(
-                    kv.currentComplex,
-                    kv.currentSection,
-                    kv.currentApartmentNumber
-                );
-
-                if (isSpecialApartment) {
-                    let adjustedSpecialPrice = kv.currentOriginalDiscountPrice + 100000;
-                    if (kv.realtorDiscountCheckbox.checked) {
-                        adjustedSpecialPrice -= 100000;
-                    }
-                    return adjustedSpecialPrice;
+                if (kv.realtorDiscountCheckbox.checked) {
+                    // При включенной скидке риелтора — использовать цену продажи из данных (нижняя цена)
+                    return kv.currentOriginalDiscountPrice;
                 }
-
-                let adjustedPrice = kv.currentDiscountPrice;
-                
-                const isSpecialComplex = kv.currentComplex === 'ЧИСТЫЕ ПРУДЫ' || 
-                                         kv.currentComplex === 'Тёплые кварталы' || 
-                                         kv.currentComplex === 'Бодровский' || 
-                                         kv.currentComplex === 'АСТРО' || 
-                                         kv.currentComplex === 'Комсомольский' ||
-                                         kv.currentComplex === 'УРАЛКВАРТАЛ';
-                const isSatisfactionGp4 = kv.currentComplex === 'Счастье' && 
-                                          kv.currentSection && 
-                                          (kv.currentSection.includes('ГП-4') || kv.currentSection.includes('ГП-5'));
-                const isAstroOrHappiness = kv.currentComplex === 'АСТРО' || kv.currentComplex === 'Счастье';
-
-                if (isSpecialComplex || isSatisfactionGp4) {
-                    adjustedPrice += 200000;
-                    
-                    // Для АСТРО и Счастье: две скидки по 50,000 ₽ каждая
-                    if (isAstroOrHappiness) {
-                        let managerDiscount = 0;
-                        if (kv.managerDiscount1Checkbox.checked) managerDiscount += 50000;
-                        if (kv.managerDiscount2Checkbox.checked) managerDiscount += 50000;
-                        adjustedPrice -= managerDiscount;
-                    } else {
-                        // Для других: одна скидка на 100,000 ₽
-                        if (kv.managerDiscount1Checkbox.checked) {
-                            adjustedPrice -= 100000;
-                        }
-                    }
-                    
-                    if (kv.realtorDiscountCheckbox.checked) {
-                        adjustedPrice -= 100000;
-                    }
-                } else {
-                    if (!kv.managerDiscount1Checkbox.checked && !kv.managerDiscount2Checkbox.checked) {
-                        adjustedPrice += 100000;
-                    }
-                }
-                return adjustedPrice;
+                // Если галочка НЕ включена — использовать нижнюю цену + 100000
+                return kv.currentOriginalDiscountPrice + 100000;
             }
 
             function roundUpTo4Digits(amount) {
