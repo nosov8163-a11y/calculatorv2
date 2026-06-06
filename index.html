@@ -1664,15 +1664,11 @@
                 const isSatisfactionGp4 = chpv2.currentComplex === 'Счастье' && 
                                           chpv2.currentSection && 
                                           (chpv2.currentSection.includes('ГП-4') || chpv2.currentSection.includes('ГП-5'));
-                const isUralkvartal = chpv2.currentComplex === 'УРАЛКВАРТАЛ';
-                
+
                 if (isSpecialComplex || isSatisfactionGp4) {
                     chpv2.realtorDiscountSection.style.display = 'block';
                     if (chpv2.realtorDiscountGroup) {
-                        chpv2.realtorDiscountGroup.style.display = isUralkvartal ? 'none' : 'flex';
-                    }
-                    if (isUralkvartal) {
-                        chpv2.realtorDiscountCheckbox.checked = true;
+                        chpv2.realtorDiscountGroup.style.display = 'flex';
                     }
                 } else {
                     chpv2.realtorDiscountSection.style.display = 'none';
@@ -2541,15 +2537,11 @@
                 const isSatisfactionGp4 = kv.currentComplex === 'Счастье' && 
                                           kv.currentSection && 
                                           (kv.currentSection.includes('ГП-4') || kv.currentSection.includes('ГП-5'));
-                const isUralkvartal = kv.currentComplex === 'УРАЛКВАРТАЛ';
-                
+
                 if (isSpecialComplex || isSatisfactionGp4) {
                     kv.realtorDiscountSection.style.display = 'block';
                     if (kv.realtorDiscountGroup) {
-                        kv.realtorDiscountGroup.style.display = isUralkvartal ? 'none' : 'flex';
-                    }
-                    if (isUralkvartal) {
-                        kv.realtorDiscountCheckbox.checked = true;
+                        kv.realtorDiscountGroup.style.display = 'flex';
                     }
                 } else {
                     kv.realtorDiscountSection.style.display = 'none';
