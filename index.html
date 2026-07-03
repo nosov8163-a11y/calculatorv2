@@ -868,12 +868,12 @@
                                 <input type="checkbox" id="chpv2-realtorDiscount">
                                 <label for="chpv2-realtorDiscount">Применить скидку риелтора (100,000 ₽)</label>
                             </div>
-                            <div class="checkbox-group" style="display: none;">
+                            <div class="checkbox-group" id="chpv2-etajiDiscountGroup" style="display: none;">
                                 <input type="checkbox" id="chpv2-etajiDiscount">
-                                <label for="chpv2-etajiDiscount">Скидка 1,5% для агентов ЭТАЖИ</label>
+                                <label for="chpv2-etajiDiscount">Скидка для агенства Этажи (50,000 ₽)</label>
                             </div>
                             <div class="option-description" style="display: none;">
-                                При включенной скидке отнимает 1,5% от стоимости квартиры дополнительно к купону
+                                При включенной скидке агенства Этажи цена уменьшается на 50,000 ₽ дополнительно к купону
                             </div>
                             <div class="option-description">
                                 При включенной скидке риелтора цена уменьшается на 100,000 ₽
@@ -1162,12 +1162,12 @@
                                 <input type="checkbox" id="kv-realtorDiscount">
                                 <label for="kv-realtorDiscount">Применить скидку риелтора (100,000 ₽)</label>
                             </div>
-                            <div class="checkbox-group" style="display: none;">
+                            <div class="checkbox-group" id="kv-etajiDiscountGroup" style="display: none;">
                                 <input type="checkbox" id="kv-etajiDiscount">
-                                <label for="kv-etajiDiscount">Скидка 1,5% для агентов ЭТАЖИ</label>
+                                <label for="kv-etajiDiscount">Скидка для агенства Этажи (50,000 ₽)</label>
                             </div>
                             <div class="option-description" style="display: none;">
-                                При включенной скидке отнимает 1,5% от стоимости квартиры дополнительно к купону
+                                При включенной скидке агенства Этажи цена уменьшается на 50,000 ₽ дополнительно к купону
                             </div>
                             <div class="option-description">
                                 При включенной скидке риелтора цена уменьшается на 100,000 ₽
@@ -1548,6 +1548,7 @@
                 realtorDiscountCheckbox: document.getElementById('chpv2-realtorDiscount'),
                 realtorDiscountGroup: document.getElementById('chpv2-realtorDiscountGroup'),
                 etajiDiscountCheckbox: document.getElementById('chpv2-etajiDiscount'),
+                etajiDiscountGroup: document.getElementById('chpv2-etajiDiscountGroup'),
                 realtorDiscountSection: document.getElementById('chpv2-realtorDiscountSection'),
                 bankDiscountCheckbox: document.getElementById('chpv2-bankDiscount'),
                 commissionInputContainer: document.getElementById('chpv2-commissionInputContainer'),
@@ -1665,6 +1666,10 @@
                                           chpv2.currentSection && 
                                           (chpv2.currentSection.includes('ГП-4') || chpv2.currentSection.includes('ГП-5'));
 
+                const showEtajiDiscount = chpv2.currentComplex === 'Счастье' &&
+                                          chpv2.currentSection &&
+                                          chpv2.currentSection.includes('ГП-4');
+
                 if (isSpecialComplex || isSatisfactionGp4) {
                     chpv2.realtorDiscountSection.style.display = 'block';
                     if (chpv2.realtorDiscountGroup) {
@@ -1676,6 +1681,13 @@
                         chpv2.realtorDiscountGroup.style.display = 'flex';
                     }
                     chpv2.realtorDiscountCheckbox.checked = false;
+                    chpv2.etajiDiscountCheckbox.checked = false;
+                }
+
+                if (chpv2.etajiDiscountGroup) {
+                    chpv2.etajiDiscountGroup.style.display = showEtajiDiscount ? 'flex' : 'none';
+                }
+                if (!showEtajiDiscount) {
                     chpv2.etajiDiscountCheckbox.checked = false;
                 }
             }
@@ -1694,12 +1706,10 @@
             }
 
             function getAdjustedDiscountPrice() {
-                if (chpv2.realtorDiscountCheckbox.checked) {
-                    // При включенной скидке риелтора — использовать цену продажи из данных (нижняя цена)
-                    return chpv2.currentOriginalDiscountPrice;
-                }
-                // Если галочка НЕ включена — использовать нижнюю цену + 100000
-                return chpv2.currentOriginalDiscountPrice + 100000;
+                const realtorChecked = chpv2.realtorDiscountCheckbox.checked;
+                const etajiChecked = chpv2.etajiDiscountCheckbox.checked;
+                const basePrice = chpv2.currentOriginalDiscountPrice + (realtorChecked ? 0 : 100000);
+                return basePrice - (etajiChecked ? 50000 : 0);
             }
 
             function getBankCommissionRate() {
@@ -2385,6 +2395,7 @@
                 realtorDiscountCheckbox: document.getElementById('kv-realtorDiscount'),
                 realtorDiscountGroup: document.getElementById('kv-realtorDiscountGroup'),
                 etajiDiscountCheckbox: document.getElementById('kv-etajiDiscount'),
+                etajiDiscountGroup: document.getElementById('kv-etajiDiscountGroup'),
                 realtorDiscountSection: document.getElementById('kv-realtorDiscountSection'),
                 repairCostInput: document.getElementById('kv-repairCost'),
                 dduObjectsInput: document.getElementById('kv-dduObjects'),
@@ -2538,6 +2549,10 @@
                                           kv.currentSection && 
                                           (kv.currentSection.includes('ГП-4') || kv.currentSection.includes('ГП-5'));
 
+                const showEtajiDiscount = kv.currentComplex === 'Счастье' &&
+                                         kv.currentSection &&
+                                         kv.currentSection.includes('ГП-4');
+
                 if (isSpecialComplex || isSatisfactionGp4) {
                     kv.realtorDiscountSection.style.display = 'block';
                     if (kv.realtorDiscountGroup) {
@@ -2549,6 +2564,13 @@
                         kv.realtorDiscountGroup.style.display = 'flex';
                     }
                     kv.realtorDiscountCheckbox.checked = false;
+                    kv.etajiDiscountCheckbox.checked = false;
+                }
+
+                if (kv.etajiDiscountGroup) {
+                    kv.etajiDiscountGroup.style.display = showEtajiDiscount ? 'flex' : 'none';
+                }
+                if (!showEtajiDiscount) {
                     kv.etajiDiscountCheckbox.checked = false;
                 }
             }
@@ -2567,12 +2589,10 @@
             }
 
             function getAdjustedDiscountPrice() {
-                if (kv.realtorDiscountCheckbox.checked) {
-                    // При включенной скидке риелтора — использовать цену продажи из данных (нижняя цена)
-                    return kv.currentOriginalDiscountPrice;
-                }
-                // Если галочка НЕ включена — использовать нижнюю цену + 100000
-                return kv.currentOriginalDiscountPrice + 100000;
+                const realtorChecked = kv.realtorDiscountCheckbox.checked;
+                const etajiChecked = kv.etajiDiscountCheckbox.checked;
+                const basePrice = kv.currentOriginalDiscountPrice + (realtorChecked ? 0 : 100000);
+                return basePrice - (etajiChecked ? 50000 : 0);
             }
 
             function roundUpTo4Digits(amount) {
