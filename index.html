@@ -2158,6 +2158,32 @@
                 };
             }
 
+            function normalizeProjectName(value) {
+                return (value || '').toLowerCase().replace(/ё/g, 'е');
+            }
+
+            function getRepairAreaValue(item) {
+                const complex = item["Название ЖК"] || '';
+                const section = item["Название дома"] || '';
+                const normalizedComplex = normalizeProjectName(complex);
+                const normalizedSection = normalizeProjectName(section);
+
+                if (
+                    normalizedComplex === 'бодровский' ||
+                    normalizedComplex === 'комсомольский' ||
+                    normalizedComplex === 'теплые кварталы' ||
+                    (normalizedComplex === 'счастье' && normalizedSection.includes('гп-5'))
+                ) {
+                    return item["Площадь без лоджии"];
+                }
+
+                if (normalizedComplex === 'чистые пруды') {
+                    return item["Площадь без балкона"];
+                }
+
+                return item["Площадь, м2"];
+            }
+
             function populateChpv2Complexes() {
                 const complexes = [...new Set(allApartmentsData.map(item => item["Название ЖК"]).filter(function(name) {
                     return Boolean(name);
@@ -2230,6 +2256,7 @@
                             status: item["Статус"],
                             roomType: item["Кол-во комнат"],
                             area: item["Площадь, м2"],
+                            repairArea: getRepairAreaValue(item),
                             floor: item["Этаж"] || '',
                             planUrl: item["3D тур квартиры"]
                         }));
@@ -2247,6 +2274,7 @@
                         option.dataset.status = apartment.status;
                         option.dataset.roomType = apartment.roomType;
                         option.dataset.area = apartment.area;
+                        option.dataset.repairArea = apartment.repairArea;
                         option.dataset.floor = apartment.floor || '';
                         option.dataset.planUrl = apartment.planUrl || '';
                         chpv2.apartmentSelect.appendChild(option);
@@ -2274,7 +2302,7 @@
                     chpv2.currentApartmentNumber = selectedOption.value;
                     chpv2.currentRoomType = selectedOption.dataset.roomType;
                     chpv2.currentArea = selectedOption.dataset.area;
-                    const chpv2Area = parseFloat(chpv2.currentArea) || 0;
+                    const chpv2Area = parseFloat(selectedOption.dataset.repairArea || selectedOption.dataset.area) || 0;
                     const chpv2RepairRate = chpv2.currentComplex === 'АСТРО' ? 20000 : 29000;
                     const chpv2RepairTotal = Math.round(chpv2Area * chpv2RepairRate);
                     document.getElementById('chpv2-repairCostDescription').textContent =
@@ -2868,6 +2896,7 @@
                             status: item["Статус"],
                             roomType: item["Кол-во комнат"],
                             area: item["Площадь, м2"],
+                            repairArea: getRepairAreaValue(item),
                             floor: item["Этаж"] || '',
                             planUrl: item["3D тур квартиры"]
                         }));
@@ -2885,6 +2914,7 @@
                         option.dataset.status = apartment.status;
                         option.dataset.roomType = apartment.roomType;
                         option.dataset.area = apartment.area;
+                        option.dataset.repairArea = apartment.repairArea;
                         option.dataset.floor = apartment.floor || '';
                         option.dataset.planUrl = apartment.planUrl || '';
                         kv.apartmentSelect.appendChild(option);
@@ -2912,7 +2942,7 @@
                     kv.currentApartmentNumber = selectedOption.value;
                     kv.currentRoomType = selectedOption.dataset.roomType;
                     kv.currentArea = selectedOption.dataset.area;
-                    const kvArea = parseFloat(kv.currentArea) || 0;
+                    const kvArea = parseFloat(selectedOption.dataset.repairArea || selectedOption.dataset.area) || 0;
                     const kvRepairRate = kv.currentComplex === 'АСТРО' ? 20000 : 29000;
                     const kvRepairTotal = Math.round(kvArea * kvRepairRate);
                     document.getElementById('kv-repairCostDescription').textContent =
