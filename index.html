@@ -1516,6 +1516,25 @@
             return String(value || '').trim().replace(/\s+/g, ' ');
         }
 
+        function getRepairAreaForApartment(item) {
+            const complex = item["Название ЖК"];
+            const section = item["Название дома"] || '';
+
+            if (complex === 'Бодровский' ||
+                complex === 'Комсомольский' ||
+                complex === 'Тёплые кварталы' ||
+                (complex === 'Счастье' && section.includes('ГП-5'))
+            ) {
+                return item["Площадь без лоджии"] || item["Площадь, м2"];
+            }
+
+            if (complex === 'ЧИСТЫЕ ПРУДЫ') {
+                return item["Площадь без балкона"] || item["Площадь, м2"];
+            }
+
+            return item["Площадь, м2"];
+        }
+
         function isSpecialApartmentForRule(complex, section, apartmentNumber) {
             const normalizedComplex = normalizeLookupValue(complex);
             const normalizedSection = normalizeLookupValue(section);
@@ -2230,6 +2249,7 @@
                             status: item["Статус"],
                             roomType: item["Кол-во комнат"],
                             area: item["Площадь, м2"],
+                            repairArea: getRepairAreaForApartment(item),
                             floor: item["Этаж"] || '',
                             planUrl: item["3D тур квартиры"]
                         }));
@@ -2247,6 +2267,7 @@
                         option.dataset.status = apartment.status;
                         option.dataset.roomType = apartment.roomType;
                         option.dataset.area = apartment.area;
+                        option.dataset.repairArea = apartment.repairArea;
                         option.dataset.floor = apartment.floor || '';
                         option.dataset.planUrl = apartment.planUrl || '';
                         chpv2.apartmentSelect.appendChild(option);
@@ -2274,11 +2295,11 @@
                     chpv2.currentApartmentNumber = selectedOption.value;
                     chpv2.currentRoomType = selectedOption.dataset.roomType;
                     chpv2.currentArea = selectedOption.dataset.area;
-                    const chpv2Area = parseFloat(chpv2.currentArea) || 0;
+                    const chpv2RepairArea = parseFloat(selectedOption.dataset.repairArea) || 0;
                     const chpv2RepairRate = chpv2.currentComplex === 'АСТРО' ? 20000 : 29000;
-                    const chpv2RepairTotal = Math.round(chpv2Area * chpv2RepairRate);
+                    const chpv2RepairTotal = Math.round(chpv2RepairArea * chpv2RepairRate);
                     document.getElementById('chpv2-repairCostDescription').textContent =
-                        `Расчёт цены ремонта: ${chpv2RepairRate.toLocaleString('ru-RU')} р. за 1 м² × ${chpv2Area} м² = ${chpv2RepairTotal.toLocaleString('ru-RU')} р.`;
+                        `Расчёт цены ремонта: ${chpv2RepairRate.toLocaleString('ru-RU')} р. за 1 м² × ${chpv2RepairArea} м² = ${chpv2RepairTotal.toLocaleString('ru-RU')} р.`;
                     chpv2.currentFloor = selectedOption.dataset.floor || '';
                     const chpv2FallbackPlanUrl = selectedOption.dataset.planUrl || '';
                     const chpv2ProfitbaseOnly = isProfitbaseOnlyProject(chpv2.currentComplex, chpv2.currentSection);
@@ -2868,6 +2889,7 @@
                             status: item["Статус"],
                             roomType: item["Кол-во комнат"],
                             area: item["Площадь, м2"],
+                            repairArea: getRepairAreaForApartment(item),
                             floor: item["Этаж"] || '',
                             planUrl: item["3D тур квартиры"]
                         }));
@@ -2885,6 +2907,7 @@
                         option.dataset.status = apartment.status;
                         option.dataset.roomType = apartment.roomType;
                         option.dataset.area = apartment.area;
+                        option.dataset.repairArea = apartment.repairArea;
                         option.dataset.floor = apartment.floor || '';
                         option.dataset.planUrl = apartment.planUrl || '';
                         kv.apartmentSelect.appendChild(option);
@@ -2912,11 +2935,11 @@
                     kv.currentApartmentNumber = selectedOption.value;
                     kv.currentRoomType = selectedOption.dataset.roomType;
                     kv.currentArea = selectedOption.dataset.area;
-                    const kvArea = parseFloat(kv.currentArea) || 0;
+                    const kvRepairArea = parseFloat(selectedOption.dataset.repairArea) || 0;
                     const kvRepairRate = kv.currentComplex === 'АСТРО' ? 20000 : 29000;
-                    const kvRepairTotal = Math.round(kvArea * kvRepairRate);
+                    const kvRepairTotal = Math.round(kvRepairArea * kvRepairRate);
                     document.getElementById('kv-repairCostDescription').textContent =
-                        `Расчёт цены ремонта: ${kvRepairRate.toLocaleString('ru-RU')} р. за 1 м² × ${kvArea} м² = ${kvRepairTotal.toLocaleString('ru-RU')} р.`;
+                        `Расчёт цены ремонта: ${kvRepairRate.toLocaleString('ru-RU')} р. за 1 м² × ${kvRepairArea} м² = ${kvRepairTotal.toLocaleString('ru-RU')} р.`;
                     kv.currentFloor = selectedOption.dataset.floor || '';
                     const kvFallbackPlanUrl = selectedOption.dataset.planUrl || '';
                     const kvProfitbaseOnly = isProfitbaseOnlyProject(kv.currentComplex, kv.currentSection);
