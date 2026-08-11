@@ -869,6 +869,10 @@
                                 <input type="checkbox" id="chpv2-realtorDiscount">
                                 <label for="chpv2-realtorDiscount">Применить скидку риелтора (100,000 ₽)</label>
                             </div>
+                            <div class="checkbox-group" id="chpv2-paidReservationGroup">
+                                <input type="checkbox" id="chpv2-paidReservation">
+                                <label for="chpv2-paidReservation">Платная бронь</label>
+                            </div>
                             <div class="checkbox-group" id="chpv2-etajiDiscountGroup" style="display: none;">
                                 <input type="checkbox" id="chpv2-etajiDiscount">
                                 <label for="chpv2-etajiDiscount">Скидка для агенства Этажи (50,000 ₽)</label>
@@ -878,6 +882,9 @@
                             </div>
                             <div class="option-description">
                                 При включенной скидке риелтора цена уменьшается на 100,000 ₽
+                            </div>
+                            <div class="option-description" id="chpv2-paidReservationDescription">
+                                Дает скидку 50 000 р. от расчетной цены
                             </div>
                         </div>
                         
@@ -1163,6 +1170,10 @@
                                 <input type="checkbox" id="kv-realtorDiscount">
                                 <label for="kv-realtorDiscount">Применить скидку риелтора (100,000 ₽)</label>
                             </div>
+                            <div class="checkbox-group" id="kv-paidReservationGroup">
+                                <input type="checkbox" id="kv-paidReservation">
+                                <label for="kv-paidReservation">Платная бронь</label>
+                            </div>
                             <div class="checkbox-group" id="kv-etajiDiscountGroup" style="display: none;">
                                 <input type="checkbox" id="kv-etajiDiscount">
                                 <label for="kv-etajiDiscount">Скидка для агенства Этажи (50,000 ₽)</label>
@@ -1172,6 +1183,9 @@
                             </div>
                             <div class="option-description">
                                 При включенной скидке риелтора цена уменьшается на 100,000 ₽
+                            </div>
+                            <div class="option-description" id="kv-paidReservationDescription">
+                                Дает скидку 50 000 р. от расчетной цены
                             </div>
                         </div>
                         
@@ -1567,6 +1581,7 @@
                 managerDiscountDescription: document.getElementById('chpv2-managerDiscountDescription'),
                 realtorDiscountCheckbox: document.getElementById('chpv2-realtorDiscount'),
                 realtorDiscountGroup: document.getElementById('chpv2-realtorDiscountGroup'),
+                paidReservationCheckbox: document.getElementById('chpv2-paidReservation'),
                 etajiDiscountCheckbox: document.getElementById('chpv2-etajiDiscount'),
                 etajiDiscountGroup: document.getElementById('chpv2-etajiDiscountGroup'),
                 realtorDiscountSection: document.getElementById('chpv2-realtorDiscountSection'),
@@ -1701,6 +1716,7 @@
                         chpv2.realtorDiscountGroup.style.display = 'flex';
                     }
                     chpv2.realtorDiscountCheckbox.checked = false;
+                    chpv2.paidReservationCheckbox.checked = false;
                     chpv2.etajiDiscountCheckbox.checked = false;
                 }
 
@@ -1728,7 +1744,11 @@
             function getAdjustedDiscountPrice() {
                 const realtorChecked = chpv2.realtorDiscountCheckbox.checked;
                 const etajiChecked = chpv2.etajiDiscountCheckbox.checked;
-                const basePrice = chpv2.currentOriginalDiscountPrice + (realtorChecked ? 0 : 100000);
+                const paidReservationChecked = chpv2.paidReservationCheckbox.checked;
+                let basePrice = chpv2.currentOriginalDiscountPrice + (realtorChecked ? 0 : 100000);
+                if (paidReservationChecked) {
+                    basePrice -= 50000;
+                }
                 return basePrice - (etajiChecked ? 50000 : 0);
             }
 
@@ -2354,6 +2374,11 @@
                 updateChpv2PriceDisplay();
                 calculateChpv2();
             });
+
+            chpv2.paidReservationCheckbox.addEventListener('change', function() {
+                updateChpv2PriceDisplay();
+                calculateChpv2();
+            });
             
             chpv2.etajiDiscountCheckbox.addEventListener('change', function() {
                 updateChpv2PriceDisplay();
@@ -2416,6 +2441,7 @@
                 managerDiscountDescription: document.getElementById('kv-managerDiscountDescription'),
                 realtorDiscountCheckbox: document.getElementById('kv-realtorDiscount'),
                 realtorDiscountGroup: document.getElementById('kv-realtorDiscountGroup'),
+                paidReservationCheckbox: document.getElementById('kv-paidReservation'),
                 etajiDiscountCheckbox: document.getElementById('kv-etajiDiscount'),
                 etajiDiscountGroup: document.getElementById('kv-etajiDiscountGroup'),
                 realtorDiscountSection: document.getElementById('kv-realtorDiscountSection'),
@@ -2586,6 +2612,7 @@
                         kv.realtorDiscountGroup.style.display = 'flex';
                     }
                     kv.realtorDiscountCheckbox.checked = false;
+                    kv.paidReservationCheckbox.checked = false;
                     kv.etajiDiscountCheckbox.checked = false;
                 }
 
@@ -2613,7 +2640,11 @@
             function getAdjustedDiscountPrice() {
                 const realtorChecked = kv.realtorDiscountCheckbox.checked;
                 const etajiChecked = kv.etajiDiscountCheckbox.checked;
-                const basePrice = kv.currentOriginalDiscountPrice + (realtorChecked ? 0 : 100000);
+                const paidReservationChecked = kv.paidReservationCheckbox.checked;
+                let basePrice = kv.currentOriginalDiscountPrice + (realtorChecked ? 0 : 100000);
+                if (paidReservationChecked) {
+                    basePrice -= 50000;
+                }
                 return basePrice - (etajiChecked ? 50000 : 0);
             }
 
@@ -2993,6 +3024,7 @@
             kv.managerDiscount1Checkbox.addEventListener('change', calculateKv);
             kv.managerDiscount2Checkbox.addEventListener('change', calculateKv);
             kv.realtorDiscountCheckbox.addEventListener('change', calculateKv);
+            kv.paidReservationCheckbox.addEventListener('change', calculateKv);
             kv.etajiDiscountCheckbox.addEventListener('change', calculateKv);
             kv.repairCostInput.addEventListener('input', calculateKv);
             kv.dduObjectsInput.addEventListener('input', calculateKv);
