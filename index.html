@@ -1563,6 +1563,28 @@
             return sectionRules.has(normalizedApartmentNumber);
         }
 
+        // Временное правило для УРАЛКВАРТАЛ. Чтобы быстро откатить — сменить на false.
+        const ENABLE_TEMP_URALKVARTAL_BASE_PRICE_RULE = true;
+
+        function parseRoomCount(rawValue) {
+            if (rawValue === undefined || rawValue === null || rawValue === '') {
+                return 0;
+            }
+            const match = String(rawValue).match(/\d+/);
+            return match ? Number(match[0]) : 0;
+        }
+
+        function getEffectivePriceForComplex(complexName, roomType, rawBasePrice, rawDiscountPrice) {
+            const basePrice = Number.isFinite(rawBasePrice) && rawBasePrice > 0 ? rawBasePrice : (Number.isFinite(rawDiscountPrice) && rawDiscountPrice > 0 ? rawDiscountPrice : 0);
+            if (!ENABLE_TEMP_URALKVARTAL_BASE_PRICE_RULE || complexName !== 'УРАЛКВАРТАЛ' || basePrice <= 0) {
+                return Number.isFinite(rawDiscountPrice) && rawDiscountPrice > 0 ? rawDiscountPrice : basePrice;
+            }
+
+            const roomCount = parseRoomCount(roomType);
+            const discountRate = roomCount === 1 ? 0.20 : 0.15;
+            return Math.round(basePrice * (1 - discountRate) - 100000);
+        }
+
         // ==================== КАЛЬКУЛЯТОР ЧПВ 2.0 ====================
         function initializeChpv2Calculator() {
             const chpv2 = {
@@ -2307,8 +2329,16 @@
                 updateManagerDiscountVisibility();
 
                 if (selectedOption.value) {
-                    chpv2.currentOriginalBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
-                    chpv2.currentOriginalDiscountPrice = parseInt(selectedOption.dataset.discountPrice) || 0;
+                    const rawBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
+                    const rawDiscountPrice = parseInt(selectedOption.dataset.discountPrice) || 0;
+                    const effectivePrice = getEffectivePriceForComplex(
+                        selectedOption.dataset.complex,
+                        selectedOption.dataset.roomType,
+                        rawBasePrice,
+                        rawDiscountPrice
+                    );
+                    chpv2.currentOriginalBasePrice = effectivePrice;
+                    chpv2.currentOriginalDiscountPrice = effectivePrice;
                     chpv2.currentStatus = selectedOption.dataset.status || '';
                     chpv2.currentComplex = selectedOption.dataset.complex;
                     chpv2.currentSection = selectedOption.dataset.section;
@@ -2957,9 +2987,17 @@
                 updateManagerDiscountVisibility();
 
                 if (selectedOption.value) {
-                    kv.currentBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
-                    kv.currentOriginalDiscountPrice = parseInt(selectedOption.dataset.discountPrice) || 0;
-                    kv.currentDiscountPrice = kv.currentOriginalDiscountPrice;
+                    const rawBasePrice = parseInt(selectedOption.dataset.basePrice) || 0;
+                    const rawDiscountPrice = parseInt(selectedOption.dataset.discountPrice) || 0;
+                    const effectivePrice = getEffectivePriceForComplex(
+                        selectedOption.dataset.complex,
+                        selectedOption.dataset.roomType,
+                        rawBasePrice,
+                        rawDiscountPrice
+                    );
+                    kv.currentBasePrice = effectivePrice;
+                    kv.currentOriginalDiscountPrice = effectivePrice;
+                    kv.currentDiscountPrice = effectivePrice;
                     kv.currentStatus = selectedOption.dataset.status || '';
                     kv.currentComplex = selectedOption.dataset.complex;
                     kv.currentSection = selectedOption.dataset.section;
