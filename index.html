@@ -1450,8 +1450,14 @@
                         return '4 квартал 2028';
                     }
                     return 'не указана';
-                case 'ЧИСТЫЕ ПРУДЫ':
-                    return '3 квартал 2027';
+case 'ЧИСТЫЕ ПРУДЫ':
+    if (section && (section.includes('ГП-1') || section.includes('ГП-2'))) {
+        return '3 квартал 2027';
+    }
+    if (section && section.includes('ГП-3')) {
+        return '2 квартал 2028';
+    }
+    return 'не указана';
                 case 'Комсомольский':
                     return '4 квартал 2027';
                 case 'Бодровский':
