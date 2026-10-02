@@ -2033,7 +2033,9 @@ case 'ЧИСТЫЕ ПРУДЫ':
                             number: item["Номер помещения"],
                             propertyId: item["ID помещения"],
                             basePrice: item["Цена"],
-                            discountPrice: item["Цена продажи"],
+                            discountPrice: item["Название ЖК"] === 'ЧИСТЫЕ ПРУДЫ'
+                                ? item["Новая цена для ЧП (уже со скидкой агента)"]
+                                : item["Цена продажи"],
                             complex: item["Название ЖК"],
                             section: item["Название дома"],
                             type: item["Тип помещения"],
@@ -2673,7 +2675,9 @@ case 'ЧИСТЫЕ ПРУДЫ':
                             number: item["Номер помещения"],
                             propertyId: item["ID помещения"],
                             basePrice: item["Цена"],
-                            discountPrice: item["Цена продажи"],
+                            discountPrice: item["Название ЖК"] === 'ЧИСТЫЕ ПРУДЫ'
+                                ? item["Новая цена для ЧП (уже со скидкой агента)"]
+                                : item["Цена продажи"],
                             complex: item["Название ЖК"],
                             section: item["Название дома"],
                             type: item["Тип помещения"],
