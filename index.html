@@ -1536,7 +1536,7 @@ case 'ЧИСТЫЕ ПРУДЫ':
             if (!ENABLE_TEMP_URALKVARTAL_BASE_PRICE_RULE || complexName !== 'УРАЛКВАРТАЛ' || basePrice <= 0) {
                 return Number.isFinite(rawDiscountPrice) && rawDiscountPrice > 0 ? rawDiscountPrice : basePrice;
             }
-            const pricePercent = parseRoomCount(roomType) === 1 ? 0.8 : 0.85;
+            const pricePercent = parseRoomCount(roomType) === 1 ? 0.85 : 0.85;
             return basePrice * pricePercent;
         }
 
