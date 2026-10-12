@@ -1187,6 +1187,21 @@
                         <span id="kv-familyDiscount" class="discount">1&nbsp;062&nbsp;500 ₽</span>
                     </div>
                     <div id="kv-familyWarning" class="payment-warning" style="display: none;"></div>
+                    <div class="option-section">
+                        <div class="option-title">Количество детей для лимита семейной ипотеки</div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="kv-familyLoanLimit1" name="kv-familyLoanLimit" value="6000000" checked>
+                            <label for="kv-familyLoanLimit1">1 ребенок — 6 млн ₽</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="kv-familyLoanLimit2" name="kv-familyLoanLimit" value="8000000">
+                            <label for="kv-familyLoanLimit2">2 ребенка — 8 млн ₽</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="kv-familyLoanLimit3" name="kv-familyLoanLimit" value="10000000">
+                            <label for="kv-familyLoanLimit3">3 и более детей — 10 млн ₽</label>
+                        </div>
+                    </div>
                 </div>
                 
                 <!-- Блок для стандартной ипотеки -->
@@ -2226,6 +2241,7 @@ case 'ЧИСТЫЕ ПРУДЫ':
                 familyLoanBody: document.getElementById('kv-familyLoanBody'),
                 familyDiscount: document.getElementById('kv-familyDiscount'),
                 familyWarning: document.getElementById('kv-familyWarning'),
+                familyLoanLimitCheckboxes: document.querySelectorAll('input[name="kv-familyLoanLimit"]'),
                 
                 standardClientPV: document.getElementById('kv-standardClientPV'),
                 standardKV: document.getElementById('kv-standardKV'),
@@ -2459,6 +2475,11 @@ case 'ЧИСТЫЕ ПРУДЫ':
                 const repairCost = parseInt(kv.repairCostInput.value) || 0;
                 const dduObjects = parseInt(kv.dduObjectsInput.value) || 0;
                 const kvSubsidyPercent = parseFloat(kv.kvSubsidyInput.value) || 0;
+                const selectedLoanLimit = Array.from(kv.familyLoanLimitCheckboxes).find(function(checkbox) {
+                    return checkbox.checked;
+                });
+                const familyLoanLimit = selectedLoanLimit ? parseInt(selectedLoanLimit.value, 10) : 6000000;
+                const familyLoanLimitInMillions = familyLoanLimit / 1000000;
                 
                 let clientPVPercent, clientPVRub;
                 if (clientPVSource === 'percent') {
@@ -2482,9 +2503,9 @@ case 'ЧИСТЫЕ ПРУДЫ':
                     
                     let clientPVRubCalc = contractPrice * (clientPVPercent / 100);
                     
-                    if (contractPrice - clientPVRubCalc >= 6000000) {
+                    if (contractPrice - clientPVRubCalc >= familyLoanLimit) {
                         kv.familyWarning.style.display = 'block';
-                        kv.familyWarning.textContent = 'Увеличить ПВ клиента (тело кредита превышает 6 млн)';
+                        kv.familyWarning.textContent = `Увеличить ПВ клиента (тело кредита превышает ${familyLoanLimitInMillions} млн)`;
                         kv.familyClientPV.textContent = "Увеличить ПВ клиента";
                         kv.familyKV.textContent = formatMoney(0);
                         kv.familyContractPrice.textContent = formatMoney(0);
@@ -2519,9 +2540,9 @@ case 'ЧИСТЫЕ ПРУДЫ':
                 let kvRub = (contractPrice - clientPVRubFinal) * (kvSubsidyPercent / 100);
                 let loanBody = contractPrice - clientPVRubFinal;
                 
-                if (contractPrice - clientPVRubFinal >= 6000000) {
+                if (contractPrice - clientPVRubFinal >= familyLoanLimit) {
                     kv.familyWarning.style.display = 'block';
-                    kv.familyWarning.textContent = 'Увеличить ПВ клиента (тело кредита превышает 6 млн)';
+                    kv.familyWarning.textContent = `Увеличить ПВ клиента (тело кредита превышает ${familyLoanLimitInMillions} млн)`;
                     kv.familyClientPV.textContent = "Увеличить ПВ клиента";
                     kv.familyKV.textContent = formatMoney(0);
                     kv.familyContractPrice.textContent = formatMoney(0);
@@ -2797,6 +2818,20 @@ case 'ЧИСТЫЕ ПРУДЫ':
             kv.realtorDiscountCheckbox.addEventListener('change', calculateKv);
             kv.paidReservationCheckbox.addEventListener('change', calculateKv);
             kv.etajiDiscountCheckbox.addEventListener('change', calculateKv);
+            kv.familyLoanLimitCheckboxes.forEach(function(checkbox) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        kv.familyLoanLimitCheckboxes.forEach(function(otherCheckbox) {
+                            if (otherCheckbox !== checkbox) {
+                                otherCheckbox.checked = false;
+                            }
+                        });
+                    } else {
+                        this.checked = true;
+                    }
+                    calculateKv();
+                });
+            });
             kv.repairCostInput.addEventListener('input', calculateKv);
             kv.dduObjectsInput.addEventListener('input', calculateKv);
             kv.kvSubsidyInput.addEventListener('input', calculateKv);
